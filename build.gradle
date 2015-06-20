@@ -1,0 +1,65 @@
+apply plugin: 'com.bmuschko.tomcat'
+
+/**
+ * declare variables that can be used in other blocks in this file (and child gradle projects)
+ */
+ext {
+	tomcatVersion = '7.0.59'
+	javaxServletVersion = '3.1.0'
+	springWebMvcVersion = '4.0.1.RELEASE'
+
+	webappBuildDir = "${buildDir}/webapp" // buildDir is a builtin gradle thing (no declaration req'd)
+}
+
+/**
+ * tomcat & tomcat plugin config
+ */
+tomcat.httpPort = 8080
+tomcatRun {
+	contextPath = '/'
+}
+
+/**
+ * declare alternative dependency configurations (like compile)
+ */
+configurations {
+	providedCompile
+}
+
+/**
+ * Distinguishes different set of sources, like main and test
+ */
+sourceSets {
+	main {
+		compileClasspath += configurations.providedCompile
+	}
+}
+
+/**
+ * the buildscript block declares dependencies for building the rest of the functionality
+ * of this file.  Eg plugin dependencies need to be declared here.
+ */
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "com.bmuschko:gradle-tomcat-plugin:2.0"
+	}
+}
+
+/**
+ * Runtime dependencies and where to get them
+ */
+repositories {
+	mavenCentral()
+}
+dependencies {
+	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+
+	providedCompile "javax.servlet:javax.servlet-api:${javaxServletVersion}" // to avoid dependency clash cast exception
+
+	compile "org.springframework:spring-webmvc:${springWebMvcVersion}"
+}
