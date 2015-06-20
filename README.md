@@ -1,1 +1,3 @@
-# WatchWithMe
+# **WatchWithMe**
+
+## That Syncing Feeling!
