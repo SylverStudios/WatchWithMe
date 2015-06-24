@@ -20,8 +20,10 @@ window.onload = function() {
 	 * For now, this will get called once because a message is automatically sent back upon
 	 * channel subscription.
 	 */
-	function callback(stompMessageObject) {
-		console.log("within callback, message is: " + stompMessageObject.body);
+	function handleMessage(stompMessageObject) {
+		console.log("within callback, un-JSONified message is: " + stompMessageObject.body);
+
+		var roomUpdate = JSON.parse(stompMessageObject.body);
 	}
 
 	/**
@@ -45,8 +47,13 @@ window.onload = function() {
 	 * Because a message is automatically sent back on successful channel subscription.  That message
 	 * is automatically printed to the console, and sent along to the specified callback.
 	 */
+	var roomSubscription;
 	stomp.connect({}, function () {
-		stomp.subscribe('/roomupdates', callback);
+		roomSubscription = stomp.subscribe('/roomupdatechannels/samplechanneloutbound', handleMessage);
 	});
+
+	document.getElementById('sendMessage').onclick = function() {
+		stomp.send("/messagesfromclient/samplechannelinbound", {}, "hi");
+	}
 
 };
