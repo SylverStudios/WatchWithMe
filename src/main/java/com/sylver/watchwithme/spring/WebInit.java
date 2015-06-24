@@ -1,4 +1,4 @@
-package com.sylver.watchwithme;
+package com.sylver.watchwithme.spring;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
