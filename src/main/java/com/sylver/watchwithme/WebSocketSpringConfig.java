@@ -39,7 +39,7 @@ public class WebSocketSpringConfig extends AbstractWebSocketMessageBrokerConfigu
 	 */
 	@Override
 	public void configureMessageBroker(final MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/topic");
-		registry.setApplicationDestinationPrefixes("/");
+		registry.enableSimpleBroker(UrlDesign.BROKER_PREFIX);
+		registry.setApplicationDestinationPrefixes(UrlDesign.INBOUND_MESSAGE_HANDLING_PREFIX);
 	}
 }

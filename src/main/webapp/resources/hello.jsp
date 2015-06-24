@@ -17,5 +17,7 @@ For now this is just a dummy html page that our script can run off of.  I think 
 use this as a testing area for what would go into the chrome extension (using websockets to subscribe
 to room updates, listening to / interacting with video elements based on updates, and so forth) then
 port this to the chrome extension after it's all set up and working.
+
+<button id="sendMessage">Send a Message</button>
 </body>
 </html>
