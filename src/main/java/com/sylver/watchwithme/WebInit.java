@@ -21,6 +21,7 @@ public class WebInit implements WebApplicationInitializer{
 
 		// All Spring Configuration classes need to be registered
 		appContext.register(ServletConfig.class);
+		appContext.register(WebSocketSpringConfig.class);
 
 		final ServletRegistration.Dynamic dispatcher =
 			container.addServlet("Watch With Me Servlet", new DispatcherServlet(appContext));

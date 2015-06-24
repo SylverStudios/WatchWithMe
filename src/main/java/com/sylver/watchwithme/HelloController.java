@@ -17,17 +17,16 @@ public class HelloController {
 	 * {@link RequestMapping} of "/" would tell Spring that if a Http Get request (like a webpage load)
 	 * on localhost:8080/ was made, this method should handle it.
 	 *
-	 * The {@link ResponseBody} annotation tells Spring not to try to use the returned value to further
-	 * resolve to a view (if it returned the String "hello" Spring would try to find a "hello.jsp"
-	 * or "hello.html" or something), but rather just wrap the returned value in a http response and
-	 * send it back to whoever made the request.
+	 * Returning a String without the method-level {@link ResponseBody} annotation tells
+	 * Spring to use that String to find an internal resource with that name.  This, along with
+	 * other configuration, resolves to our /webapp/resources/hello.jsp file.
 	 *
 	 * The method name is irrelevant as far as Spring is concerned.
 	 *
-	 * @return A "hello world"-style {@link ResponseBody} {link String}
+	 * @return The String "hello" to tell Spring to serve the hello.jsp file.
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public @ResponseBody String hello() {
+	public String hello() {
 		return "hello";
 	}
 }

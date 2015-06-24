@@ -6,7 +6,8 @@ apply plugin: 'com.bmuschko.tomcat'
 ext {
 	tomcatVersion = '7.0.59'
 	javaxServletVersion = '3.1.0'
-	springWebMvcVersion = '4.0.1.RELEASE'
+	springVersion = '4.1.6.RELEASE'
+	jacksonVersion = '2.5.3'
 
 	webappBuildDir = "${buildDir}/webapp" // buildDir is a builtin gradle thing (no declaration req'd)
 }
@@ -56,10 +57,15 @@ repositories {
 }
 dependencies {
 	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}",
 			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
 			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 
 	providedCompile "javax.servlet:javax.servlet-api:${javaxServletVersion}" // to avoid dependency clash cast exception
 
-	compile "org.springframework:spring-webmvc:${springWebMvcVersion}"
+	compile "org.springframework:spring-webmvc:${springVersion}"
+	compile "org.springframework:spring-websocket:${springVersion}"
+	compile "org.springframework:spring-messaging:${springVersion}"
+	compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+	compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 }
