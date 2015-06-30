@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+
+  "name": "Watch With Me",
+  "description": "This displays additional buttons in the UI to control videos",
+  "version": "1.0",
+
+  // This is the script that can access the DOM and it will only
+  // run if it matches the "matches" clause
+  "content_scripts": [
+    {
+      "matches" : ["https://*/*","file:///*/*"],
+      "js": ["library/jquery1.9.min.js", "contentScript.js"]
+    }
+  ],
+
+  // This scipt will get loaded into a default "background.html"
+  // which is basically nothing but a pile of scripts
+  "background": {
+    "scripts": ["library/jquery1.9.min.js", "background.js"]
+  },
+
+  // This is the little guy in the corner
+  "browser_action": {
+    "default_icon": "image/icon.png",
+    "default_popup": "watchWithMebaseTest.html",
+    "default_title": "That syncing feeling"
+  },
+
+  // This declares what your extension can access
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "https://*/",
+    "file:///*/*",
+    "https://ajax.googleapis.com/"
+  ]
+}
