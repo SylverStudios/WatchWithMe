@@ -39,7 +39,7 @@ function messageTemplate() {
 	});
 }
 
-// Explaination of chrome.tabs.query
+// Explanation of chrome.tabs.query
 // This method is essential to communicating between different pages of the extension
 // The first term is basically your 'where' statement and the second term is the callback
 // function and the query is asynchronous so you need to wait for it to return before you

@@ -18,7 +18,7 @@ console.log("Content Script is running");
 
 var videoElement = $('video').get(0);
 
-if (null != videoElement) {
+if (videoElement) {
 	console.log("Found a videoElement");
 }
 
@@ -27,40 +27,33 @@ chrome.runtime.onMessage.addListener(function(message,sender,sendResponse){
   // sendResponse({farewell:"goodbye"});
   var command = message['command'];
 
-  if (exists(command)) {
-  	handleCommand(command);
-  } else {
-  	console.log("failed to handle command.");
-  }
+  handleCommand(command);
 
 });
 
 function handleCommand(commandName) {
-	if ('PLAY' == commandName) {
-		playVideo();
-	} else if ('PAUSE' == commandName) {
-	  	pauseVideo();
+	switch(commandName) {
+		case 'PLAY':
+			playVideo();
+			break;
+		case 'PAUSE':
+			pauseVideo();
+			break;
+		default:
+			console.log("Failed to interpret command : "+commandName);
 	}
 }
 
 function playVideo() {
 	console.log("received play video command.");
-	if (exists(videoElement)) {
+	if (videoElement) {
 		videoElement.play();
 	}
 }
 
 function pauseVideo() {
 	console.log("received pause video command.");
-	if (exists(videoElement)) {
+	if (videoElement) {
 		videoElement.pause();
 	}
-}
-
-// Some utility methods
-function exists(variable) {
-	if (null == variable || undefined == variable) {
-		return false;
-	}
-	return true;
 }
