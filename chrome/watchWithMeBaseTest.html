@@ -1,0 +1,79 @@
+
+<!--
+Browser Action:
+
+The limitations and benefits of the Browser Action - This page does display a UI and can run scripts.
+It can't import external libraries from different URLs, meaning you have to keep any libraries locally.
+reference here: https://developer.chrome.com/extensions/contentSecurityPolicy
+
+This page can find other pages associated with the extension and it can use the chrome APIs. The APIs
+allow for a page to access some properties, but not the DOM. This is important! This means that we need
+to use a file in a different location to access the DOM.
+
+This page is pretty standard bootstrap styling.
+ -->
+<html>
+  <head>
+    <title>Getting Started Extension's Popup</title>
+    <style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 100%;
+        width : 600px;
+      }
+      #status {
+        /* avoid an excessively wide status text */
+        white-space: pre;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 600px;
+      }
+    </style>
+
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+     -->
+
+    <link rel="stylesheet" href="style/bootstrap.min.css">
+    <link rel="stylesheet" href="style/main.css">
+
+    <script src="library/jquery1.9.min.js"></script>
+    <script src="library/bootstrap.min.js"></script>
+    <script src="wwmTest.js"></script>
+
+  </head>
+  <body>
+
+  	<div class="container">
+  		<h2>Watch With Me Controls</h2>
+  		<div class="panel-group">
+  			<div id="controls2.0">
+				<div class="panel panel-default">
+			      <div class="control-header">Video Controls</div>
+			      <div class="panel-body control-body">
+			      	<button type="button" class="btn btn-primary btn-sm play-button">Play</button>
+			      	<button type="button" class="btn btn-primary btn-sm pause-button">Pause</button>
+			      </div>
+			    </div>
+			</div>
+
+			<div id="roomController">
+				<div class="panel panel-default">
+			      <div class="control-header">Room Controls</div>
+			      <div class="panel-body control-body">
+			      	<button type="button" class="btn btn-primary btn-sm create-button">Create Room</button>
+			      	<button type="button" class="btn btn-primary btn-sm join-button">Join Room</button>
+			      </div>
+			    </div>
+			</div>
+
+  		</div>
+  	</div>
+
+
+  </body>
+
+</html>
