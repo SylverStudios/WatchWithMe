@@ -33,6 +33,12 @@ public class ServletConfig extends WebMvcConfigurerAdapter {
 		registry.addResourceHandler("/js/*.js")
 			.addResourceLocations("/resources/js/");
 
+		registry.addResourceHandler("/vid/*.mp4")
+			.addResourceLocations("/resources/vid/");
+
+		registry.addResourceHandler("/css/*.css")
+			.addResourceLocations("/resources/css/");
+
 		registry.addResourceHandler("/webjars/**")
 			.addResourceLocations("classpath:/META-INF/resources/webjars/");
 	}

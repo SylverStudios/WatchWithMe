@@ -1,5 +1,6 @@
 package com.sylver.watchwithme.model;
 
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -19,22 +20,22 @@ public class ClientEvent {
 	}
 
 	private final Type type;
-	private final OptionalInt time;
+	private final OptionalDouble time;
 
 	@JsonCreator
 	public ClientEvent(
 		@JsonProperty("type") final Type type,
-		@JsonProperty("time") final OptionalInt time
+		@JsonProperty("time") final OptionalDouble time
 	) {
 		this.type = type;
-		this.time = time == null ? OptionalInt.empty() : time;
+		this.time = time == null ? OptionalDouble.empty() : time;
 	}
 
 	public Type getType() {
 		return type;
 	}
 
-	public OptionalInt getTime() {
+	public OptionalDouble getTime() {
 		return time;
 	}
 

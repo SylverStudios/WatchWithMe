@@ -4,21 +4,36 @@
 	<meta charset="utf-8">
 	<title>WatchWithMe</title>
 
+	<link rel="stylesheet" href="css/watchwithme.css" />
+
 	<!-- websockets libraries -->
 	<script src="lib/sockjs.min.js"></script>
 	<script src="lib/stomp.min.js"></script>
+
+	<script src="lib/jquery.js"></script>
 
 	<!-- our script -->
 	<script src="js/room.js"></script>
 
 </head>
 <body>
-For now this is just a dummy html page that our script can run off of.  I think the best plan is to
-use this as a testing area for what would go into the chrome extension (using websockets to subscribe
-to room updates, listening to / interacting with video elements based on updates, and so forth) then
-port this to the chrome extension after it's all set up and working.
+<h1>Watch With Me</h1>
+<h3>Testing environment</h3>
+<video src="vid/samplevideo.mp4" controls></video>
 
-<button id="sendPlayEvent">Send Play Event</button>
-<button id="sendPauseEvent">Send Pause Event</button>
+<div class="controls">
+	<div class="control play-button">Play</div>
+	<div class="control pause-button">Pause</div>
+	<div class="control seek-container">
+		<input class="seek-input" type="text">
+		<div class="seek-button">Seek</div>
+	</div>
+	<div class="control current-time">
+		Current time: <span class="current-time-value"></span>
+	</div>
+	<div class="control duration">
+		Duration: <span class="duration-value"></span>
+	</div>
+</div>
 </body>
 </html>

@@ -1,9 +1,9 @@
 package com.sylver.watchwithme.model;
 
-import java.util.OptionalInt;
+import java.util.OptionalDouble;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sylver.watchwithme.jackson.OptionalIntSerializer;
+import com.sylver.watchwithme.jackson.OptionalDoubleSerializer;
 
 /**
  * This class is the form all commands from the server to the client will take.
@@ -17,22 +17,22 @@ public class Command {
 	}
 
 	private final Type type;
-	private final OptionalInt time;
+	private final OptionalDouble time;
 
 	public Command(
 		final Type type,
-		final OptionalInt time
+		final OptionalDouble time
 	) {
 		this.type = type;
-		this.time = time == null ? OptionalInt.empty() : time;
+		this.time = time == null ? OptionalDouble.empty() : time;
 	}
 
 	public Type getType() {
 		return type;
 	}
 
-	@JsonSerialize(using=OptionalIntSerializer.class)
-	public OptionalInt getTime() {
+	@JsonSerialize(using=OptionalDoubleSerializer.class)
+	public OptionalDouble getTime() {
 		return time;
 	}
 
