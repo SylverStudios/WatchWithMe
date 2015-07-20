@@ -1,4 +1,4 @@
-package com.sylver.watchwithme;
+package com.sylver.watchwithme.spring;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -9,13 +9,15 @@ import org.springframework.web.socket.config.annotation.AbstractWebSocketMessage
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
+import com.sylver.watchwithme.controller.UrlDesign;
+
 /**
  * Spring config necessary for websockets stuff.
  */
 @Configuration
 @EnableWebMvc
 @EnableScheduling
-@ComponentScan("com.sylver.watchwithme")
+@ComponentScan("com.sylver.watchwithme.controller")
 @EnableWebSocketMessageBroker
 public class WebSocketSpringConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
@@ -28,7 +30,7 @@ public class WebSocketSpringConfig extends AbstractWebSocketMessageBrokerConfigu
 	 */
 	@Override
 	public void registerStompEndpoints(final StompEndpointRegistry registry) {
-		registry.addEndpoint("/messaging").withSockJS();
+		registry.addEndpoint(UrlDesign.STOMP_ENDPOINT).withSockJS();
 	}
 
 	/**
@@ -39,7 +41,7 @@ public class WebSocketSpringConfig extends AbstractWebSocketMessageBrokerConfigu
 	 */
 	@Override
 	public void configureMessageBroker(final MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/topic");
-		registry.setApplicationDestinationPrefixes("/");
+		registry.enableSimpleBroker(UrlDesign.BROKER_PREFIX);
+		registry.setApplicationDestinationPrefixes(UrlDesign.INBOUND_MESSAGE_HANDLING_PREFIX);
 	}
 }

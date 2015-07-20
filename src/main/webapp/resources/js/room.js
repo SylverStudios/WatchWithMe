@@ -1,5 +1,13 @@
 window.onload = function() {
 
+	var urls = {
+		stompEndpoint: '/messaging',
+		commandChannelPrefix: '/commandchannels',
+		eventChannelPrefix: '/eventchannels',
+		sampleEventChannel: '/sampleeventchannel',
+		sampleCommandChannel: '/samplecommandchannel'
+	};
+
 	/**
 	 * Sets up a SockJS websockets object using the STOMP messaging protocol (to play nicely with
 	 * Spring's Spring Messaging stuff).  Doesn't make a websockets connection or subscribe to a
@@ -13,15 +21,28 @@ window.onload = function() {
 	 * appends more unreadable crap to the end of that.  The point is we can hit a static server
 	 * we've set up if we want.
  	 */
-	var stomp = Stomp.over(new SockJS('/messaging'));
+	var stomp = Stomp.over(new SockJS(urls.stompEndpoint));
 
 	/**
 	 * We must have a callback function for when a message comes over a subscribed channel.
 	 * For now, this will get called once because a message is automatically sent back upon
 	 * channel subscription.
 	 */
-	function callback(stompMessageObject) {
-		console.log("within callback, message is: " + stompMessageObject.body);
+	function handleCommand(stompMessageObject) {
+		var command = JSON.parse(stompMessageObject.body);
+
+		switch(command.type) {
+			case CommandType.PLAY:
+				console.log("Play command received.");
+				break;
+			case CommandType.PAUSE:
+				console.log("Pause command received, time is " + command.time);
+				break;
+			case CommandType.PAUSE_REQUEST:
+				break;
+			default:
+				throw "Unknown command type received, command type was " + command.type;
+		}
 	}
 
 	/**
@@ -45,8 +66,48 @@ window.onload = function() {
 	 * Because a message is automatically sent back on successful channel subscription.  That message
 	 * is automatically printed to the console, and sent along to the specified callback.
 	 */
+	var roomSubscription;
 	stomp.connect({}, function () {
-		stomp.subscribe('/roomupdates', callback);
+		roomSubscription = stomp.subscribe(urls.commandChannelPrefix + urls.sampleCommandChannel, handleCommand);
 	});
+
+	/**
+	 * Object.freeze() basically creates an immutable object.  It acts kinda like an enum.
+	 * Both CommandType and EventType need to be kept in sync with the corresponding enums
+	 * on the java side (including the order).
+	 */
+	var CommandType = Object.freeze({
+		PLAY: "PLAY",
+		PAUSE: "PAUSE",
+		PAUSE_REQUEST: "PAUSE_REQUEST"
+	});
+	var EventType = Object.freeze({
+		PLAY: 0,
+		PAUSE: 1,
+		BUFFERING_START: 2,
+		BUFFERING_COMPLETE: 3,
+		SEEK: 4
+	});
+
+	/**
+	 *
+	 * @param type
+	 * @param time
+	 */
+	function sendEvent(type, time) {
+		var event = {};
+		event.type = type;
+		if (time) {
+			event.time = time;
+		}
+		stomp.send(urls.eventChannelPrefix + urls.sampleEventChannel, {}, JSON.stringify(event));
+	}
+
+	document.getElementById('sendPlayEvent').onclick = function() {
+		sendEvent(EventType.PLAY);
+	};
+	document.getElementById('sendPauseEvent').onclick = function() {
+		sendEvent(EventType.PAUSE, 1337);
+	};
 
 };

@@ -1,4 +1,4 @@
-package com.sylver.watchwithme;
+package com.sylver.watchwithme.spring;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,8 +27,11 @@ public class ServletConfig extends WebMvcConfigurerAdapter {
 	 */
 	@Override
 	public void addResourceHandlers(final ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/*.js")
-			.addResourceLocations("/resources/");
+		registry.addResourceHandler("/lib/*.js")
+			.addResourceLocations("/resources/lib/");
+
+		registry.addResourceHandler("/js/*.js")
+			.addResourceLocations("/resources/js/");
 
 		registry.addResourceHandler("/webjars/**")
 			.addResourceLocations("classpath:/META-INF/resources/webjars/");

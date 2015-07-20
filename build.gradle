@@ -8,6 +8,8 @@ ext {
 	javaxServletVersion = '3.1.0'
 	springVersion = '4.1.6.RELEASE'
 	jacksonVersion = '2.5.3'
+	slf4jVersion = '1.7.12'
+	logbackVersion = '1.0.13'
 
 	webappBuildDir = "${buildDir}/webapp" // buildDir is a builtin gradle thing (no declaration req'd)
 }
@@ -68,4 +70,9 @@ dependencies {
 	compile "org.springframework:spring-messaging:${springVersion}"
 	compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
 	compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+	compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}"
+	compile "org.slf4j:slf4j-api:${slf4jVersion}"
+	compile "ch.qos.logback:logback-classic:${logbackVersion}"
+	compile "ch.qos.logback:logback-core:${logbackVersion}"
+	compile 'commons-logging:commons-logging:1.2'
 }
