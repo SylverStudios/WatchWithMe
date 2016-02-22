@@ -24,28 +24,6 @@ window.onload = function() {
 	var stomp = Stomp.over(new SockJS(urls.stompEndpoint));
 
 	/**
-	 * We must have a callback function for when a message comes over a subscribed channel.
-	 * For now, this will get called once because a message is automatically sent back upon
-	 * channel subscription.
-	 */
-	function handleCommand(stompMessageObject) {
-		var command = JSON.parse(stompMessageObject.body);
-
-		switch(command.type) {
-			case CommandType.PLAY:
-				console.log("Play command received.");
-				break;
-			case CommandType.PAUSE:
-				console.log("Pause command received, time is " + command.time);
-				break;
-			case CommandType.PAUSE_REQUEST:
-				break;
-			default:
-				throw "Unknown command type received, command type was " + command.type;
-		}
-	}
-
-	/**
 	 * stomp.connect() connects to the STOMP messaging service set up above.  The second argument is
 	 * a callback on successful connection in which we immediately subscribe to the channel
 	 * "/roomupdates".
@@ -103,11 +81,54 @@ window.onload = function() {
 		stomp.send(urls.eventChannelPrefix + urls.sampleEventChannel, {}, JSON.stringify(event));
 	}
 
-	document.getElementById('sendPlayEvent').onclick = function() {
-		sendEvent(EventType.PLAY);
-	};
-	document.getElementById('sendPauseEvent').onclick = function() {
-		sendEvent(EventType.PAUSE, 1337);
-	};
+	var video = $('video').get(0);
+
+	video.addEventListener('canplay', function() {
+		$('.play-button').click(function() {
+			sendEvent(EventType.PLAY);
+		});
+
+		$('.pause-button').click(function() {
+			sendEvent(EventType.PAUSE, video.currentTime);
+		});
+
+		/**
+		 * THIS IS BROKEN!  I have no clue why setting it doesn't work.  @Aaron??
+		 */
+		$('.seek-button').click(function() {
+			var val = parseInt($('.seek-input').val(), 10);
+			video.currentTime = val;
+		});
+
+		video.addEventListener('timeupdate', function() {
+			$('.current-time-value').html(video.currentTime);
+		});
+
+		$('.duration-value').html(video.duration);
+	});
+
+	/**
+	 * We must have a callback function for when a message comes over a subscribed channel.
+	 * For now, this will get called once because a message is automatically sent back upon
+	 * channel subscription.
+	 */
+	function handleCommand(stompMessageObject) {
+		var command = JSON.parse(stompMessageObject.body);
+
+		switch(command.type) {
+			case CommandType.PLAY:
+				console.log("Play command received.");
+				video.play();
+				break;
+			case CommandType.PAUSE:
+				console.log("Pause command received, time is " + command.time);
+				video.pause();
+				break;
+			case CommandType.PAUSE_REQUEST:
+				break;
+			default:
+				throw "Unknown command type received, command type was " + command.type;
+		}
+	}
 
 };

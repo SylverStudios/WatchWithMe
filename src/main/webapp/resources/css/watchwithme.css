@@ -1,0 +1,25 @@
+h1, h3 {
+	text-align: center;
+}
+
+video {
+	margin: 60px auto;
+	display: block;
+}
+
+.controls {
+	width: 600px;
+	margin: 0 auto;
+}
+
+.control {
+	float: left;
+	width: 20%;
+	height: 100%;
+	cursor: pointer;
+}
+
+.seek-input {
+	width: 25px;
+	float: left;
+}
