@@ -1,78 +1,36 @@
-apply plugin: 'com.bmuschko.tomcat'
+apply plugin: 'java'
+apply plugin: 'application'
 
-/**
- * declare variables that can be used in other blocks in this file (and child gradle projects)
- */
-ext {
-	tomcatVersion = '7.0.59'
-	javaxServletVersion = '3.1.0'
-	springVersion = '4.1.6.RELEASE'
-	jacksonVersion = '2.5.3'
-	slf4jVersion = '1.7.12'
-	logbackVersion = '1.0.13'
+// Use Java 8 by default
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = '1.0'
 
-	webappBuildDir = "${buildDir}/webapp" // buildDir is a builtin gradle thing (no declaration req'd)
-}
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-/**
- * tomcat & tomcat plugin config
- */
-tomcat.httpPort = 8080
-tomcatRun {
-	contextPath = '/'
-}
-
-/**
- * declare alternative dependency configurations (like compile)
- */
-configurations {
-	providedCompile
-}
-
-/**
- * Distinguishes different set of sources, like main and test
- */
-sourceSets {
-	main {
-		compileClasspath += configurations.providedCompile
-	}
-}
-
-/**
- * the buildscript block declares dependencies for building the rest of the functionality
- * of this file.  Eg plugin dependencies need to be declared here.
- */
 buildscript {
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath "com.bmuschko:gradle-tomcat-plugin:2.0"
-	}
+  repositories {
+    mavenCentral()
+  }
 }
 
-/**
- * Runtime dependencies and where to get them
- */
+// Set our project variables
+project.ext {
+  dropwizardVersion = '0.7.0'
+}
+
 repositories {
-	mavenCentral()
+  mavenCentral()
 }
+
 dependencies {
-	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-			"org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}",
-			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
-			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+  compile (
+    'io.dropwizard:dropwizard-core:' + dropwizardVersion
+  )
+  testCompile group: 'junit', name: 'junit', version: '4.11'
+}
 
-	providedCompile "javax.servlet:javax.servlet-api:${javaxServletVersion}" // to avoid dependency clash cast exception
-
-	compile "org.springframework:spring-webmvc:${springVersion}"
-	compile "org.springframework:spring-websocket:${springVersion}"
-	compile "org.springframework:spring-messaging:${springVersion}"
-	compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
-	compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-	compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}"
-	compile "org.slf4j:slf4j-api:${slf4jVersion}"
-	compile "ch.qos.logback:logback-classic:${logbackVersion}"
-	compile "ch.qos.logback:logback-core:${logbackVersion}"
-	compile 'commons-logging:commons-logging:1.2'
+// Configure the run task to start the Dropwizard service
+run {
+  args 'server', 'example.yml'
 }
