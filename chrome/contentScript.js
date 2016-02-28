@@ -1,59 +1,127 @@
 /*
-contentScript.js
-
-The content script is a very weird file. Like all pages in the chome extension
-this one has limitations as well. It runs in what they call an "isolated world."
-
-This script has access to the current tab's DOM, which is awesome! This is how we can
-get the access to our beloved video element. The only issue with a content script is
-that it is completely hidden from the rest of the extension and the current tab. This 
-means that we need a unique way to communicate and that is why we use the window messaging
-apis.
-
+Content scripts:
+- Run in an "Isolated world."
+- Can't access or be accessed by other scripts.
+- Must communicate using the Chrome Window Messaging APIs.
+- Content scripts can access the current tab's DOM.
 */
 
+var current = 0;
+var videoElements;
+var selectedVideo;
+
 var port = chrome.runtime.connect();
+console.log('Content Script is running');
 
-console.log("Content Script is running");
+var handleCommand = function(message) {
+	var command = message['command'];
 
-var videoElement = $('video').get(0);
-
-if (videoElement) {
-	console.log("Found a videoElement");
-}
-
-// This is the essential element of the script.
-chrome.runtime.onMessage.addListener(function(message,sender,sendResponse){
-  // sendResponse({farewell:"goodbye"});
-  var command = message['command'];
-
-  handleCommand(command);
-
-});
-
-function handleCommand(commandName) {
-	switch(commandName) {
+	switch(command) {
 		case 'PLAY':
 			playVideo();
 			break;
 		case 'PAUSE':
 			pauseVideo();
 			break;
+		case 'SKIP':
+			skipTo(message['time']);
+			break;
+		case 'POPUP_OPEN':
+			popupOpen();
+			break;
+		case 'POPUP_CLOSE':
+			popupClose();
+			break;
+		case 'FIND':
+			findNextVideoElement();
+			break;
 		default:
-			console.log("Failed to interpret command : "+commandName);
+			console.log('Failed to interpret command : '+command);
 	}
 }
 
+var findNextVideoElement = function() {
+	current++;
+	var newElement = videoElements[current];
+	if (!newElement) {
+		current = 0;
+		newElement = videoElements[current];
+	}
+	utils.setVideoElement(newElement);
+}
+
+var popupClose = function() {
+	utils.removeHighlight(selectedVideo);
+}
+
+var popupOpen = function() {
+	if (!selectedVideo) {
+		initialSetup();
+	}
+
+	utils.addHighlight(selectedVideo);
+}
+
+var initialSetup = function() {
+	utils.setWwmClassStyle();
+	videoElements = $('video');
+	selectedVideo = videoElements[current];
+
+	!selectedVideo ? console.log('No video element found.') : '';
+}
+
 function playVideo() {
-	console.log("received play video command.");
-	if (videoElement) {
-		videoElement.play();
+	if (selectedVideo) {
+		selectedVideo.play();
 	}
 }
 
 function pauseVideo() {
-	console.log("received pause video command.");
-	if (videoElement) {
-		videoElement.pause();
+	if (selectedVideo) {
+		selectedVideo.pause();
 	}
 }
+
+function skipTo(time) {
+	console.log("Unsupported operation. skipTo("+time+")");
+}
+
+var utils = {
+	setVideoElement : function(newElement) {
+		if (selectedVideo) {
+			utils.removeHighlight(selectedVideo);
+		}
+		
+		selectedVideo = newElement;	
+
+		if (selectedVideo) {
+			utils.addHighlight(selectedVideo);
+		}
+	},
+
+	addHighlight : function(jSelector) {
+		$(jSelector).addClass('wwmVideo');
+	},
+
+	removeHighlight : function(jSelector) {
+		$(jSelector).removeClass('wwmVideo');
+	},
+
+	setWwmClassStyle : function() {
+		var style = document.createElement('style');
+		style.type = 'text/css';
+		style.innerHTML = `
+		.wwmVideo {
+		    border: 2px solid #35D418;
+		    border-radius: 20px;
+		}`;
+		document.getElementsByTagName('head')[0].appendChild(style);
+	}
+};
+
+
+// This is how we can read Chrome messages.
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  console.log("Command recieved at contentScript: "+message['command']);
+  handleCommand(message);
+});
