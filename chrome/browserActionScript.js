@@ -16,14 +16,20 @@ document.addEventListener('DOMContentLoaded', function() {
     FIND : function() { background.sendCommand('FIND'); populateHistory() },
     PLAY : function() { background.sendCommand('PLAY'); populateHistory() },
     PAUSE : function() { background.sendCommand('PAUSE'); populateHistory() },
+    SKIP : function() { 
+      var time = $('#skip-input').val();
+      background.sendCommand('SKIP', '', time);
+      populateHistory();
+    }
   }
 
   var bindButtons = function() {
-    $('.create-button').click(action.CREATE);
-    $('.join-button').click(action.JOIN);
-    $('.find-button').click(action.FIND);
-    $('.play-button').click(action.PLAY);
-    $('.pause-button').click(action.PAUSE);
+    $('#create-btn').click(action.CREATE);
+    $('#join-btn').click(action.JOIN);
+    $('#find-btn').click(action.FIND);
+    $('#play-btn').click(action.PLAY);
+    $('#pause-btn').click(action.PAUSE);
+    $('#skip-btn').click(action.SKIP);
   }
 
   // Will need to use chrome-storage to make this work in real time vs. on page load
@@ -48,10 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true);
   }
 
-  bindButtons();
-  populateHistory();
-  populateGroup();
-  addUnloadListener();
-  background.sendCommand('POPUP_OPEN');
+  var init = function() {
+    bindButtons();
+    populateHistory();
+    populateGroup();
+    addUnloadListener();
+    background.sendCommand('POPUP_OPEN');    
+  }
 
+  init();
 });

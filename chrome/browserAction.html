@@ -41,20 +41,27 @@ https://developer.chrome.com/extensions/contentSecurityPolicy
 
             <div id="app-buttons" class="btn-group" role="group">
 
-              <button type="button" class="btn btn-success btn-sm create-button">Create Room</button>
+              <button id="create-btn" type="button" class="btn btn-success btn-sm">Create Room</button>
 
-              <button type="button" class="btn btn-primary btn-sm join-button">Join Room</button>
+              <button id="join-btn" type="button" class="btn btn-primary btn-sm">Join Room</button>
 
-              <button type="button" class="btn btn-primary btn-sm find-button">Select Video</button>
+              <button id="find-btn" type="button" class="btn btn-primary btn-sm">Select Video</button>
               
             </div>
 
             <div id="video-buttons" class="btn-group" role="group">
               
-              <button type="button" class="btn btn-success btn-sm play-button">Play</button>
+              <button id="play-btn" type="button" class="btn btn-success btn-sm">Play</button>
 
-              <button type="button" class="btn btn-primary btn-sm pause-button">Pause</button>
+              <button id="pause-btn" type="button" class="btn btn-primary btn-sm">Pause</button>
               
+            </div>
+
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button id="skip-btn" class="btn btn-primary btn-sm" type="button">Skip</button>
+              </span>
+              <input id="skip-input" type="text" class="form-control" placeholder="Time in seconds">
             </div>
 
           </div>

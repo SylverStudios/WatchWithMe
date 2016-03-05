@@ -11,8 +11,8 @@ var videoHistory = {
   list : [],
 
   add : function(commandObject) {
-    var log = commandObject.user + " : " + commandObject.command;
-    commandObject.time ? log+= " @ "+time : "";
+    var log = commandObject.user + ' : ' + commandObject.command;
+    commandObject.time ? log += ' to ' + commandObject.time + ' seconds.' : '.';
 
     this.list.push(log);
 
@@ -60,27 +60,23 @@ var sendCommand = function sendCommand(commandName, commandSender, time) {
   }
 }
 
+var handleMessageFromContentScript = function(message, sender, sendResponse) {
+  console.log("Background caught a message.");
+  console.log(sender);
+  console.log("Can I catch my own messages?");
+  console.log(message.greeting);
+};
+
 var init = function() {
   // Set myUsername
   chrome.identity.getProfileUserInfo(function(userInfo) {
     myUsername = userInfo.email.split("@")[0];
   });
 
+  chrome.runtime.onMessage.addListener(handleMessageFromContentScript);
+
   // Read other stuff out of browser storage?
   // Connect to websocket
 }
 
 init();
-
-
-
-
-
-
-
-
-
-
-
-
-

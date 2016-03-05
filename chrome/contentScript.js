@@ -6,25 +6,148 @@ Content scripts:
 - Content scripts can access the current tab's DOM.
 */
 
-var current = 0;
-var videoElements;
-var selectedVideo;
+var videoControl = {
+	videoElements : undefined,
+	video : undefined,
+	currentVideo : 0,
+	actionEvents : "play pause seeking",
+	passiveEvents : "timeupdate",
 
-var port = chrome.runtime.connect();
-console.log('Content Script is running');
+	init : function init() {
+		this.videoElements = $('video');
+		this.video = this.videoElements[this.currentVideo];
+
+		this.video ? this.addVideoListeners(this.video) : console.log('No video element found.');
+	},
+
+	selectNextVideoElement : function() {
+
+		if (!this.videoElements || this.videoElements.length < 2) {
+			console.log('No other elements to select.');
+			return;
+		} else {
+			this.currentVideo >= this.videoElements.length ? this.currentVideo = 0 : this.currentVideo++;
+			this.setVideoElement(videoElements[currentVideo]);
+		}
+
+	},
+
+	setVideoElement : function(newSelectedVideo) {
+		if (this.video) {
+			this.removeHightlight();
+			this.removeVideoListeners(this.video)
+		}
+		
+		this.video = newSelectedVideo;
+
+		if (this.video) {
+			this.addHighlight();
+			this.addVideoListeners(this.video);
+		}
+	},
+
+	addHighlight : function(jSelector) {
+		var addTo = jSelector ? jSelector : this.video;
+		$(addTo).addClass('wwmVideo');
+	},
+
+	removeHighlight : function(jSelector) {
+		var removeFrom = jSelector ? jSelector : this.video;
+		$(removeFrom).removeClass('wwmVideo');
+	},
+
+	videoListener : function(event) {
+		var eventType = event.type;
+		sendToBackgroundScript();
+
+		switch(eventType) {
+			case 'play':
+				console.log("play from: "+event.target.currentTime);
+				break;
+			case 'pause':
+				console.log("pause at: "+event.target.currentTime);
+				break;
+			case 'seeking':
+				console.log("seeking to: "+event.target.currentTime);
+				break;
+			default:
+				console.log("I Don't know how to hangle event: "+eventType);
+		}
+	},
+
+	timeUpdateHandler : function(event) {
+		// This is happening too often I think, multiple times per second.
+		setTimeout(function() {
+			console.log("The timeout is working I hope, here is the event");
+			console.log(event);
+		}, 2000);
+	},
+
+	addVideoListeners : function(jSelector) {
+		$(jSelector).on(this.actionEvents, this.videoListener);
+		// $(jSelector).on(this.passiveEvents, this.timeUpdateHandler);
+
+	},
+
+	removeVideoListeners : function(jSelector) {
+		$(jSelector).off(this.activeEvents, this.videoListener);
+		// $(jSelector).off(this.passiveEvents, this.timeUpdateHandler);
+	},
+
+	play : function play() {
+		if (this.video) {
+			this.video.play();
+		}
+	},
+	
+	pause : function pause() {
+		if (this.video) {
+			this.video.pause();
+		}
+	},
+
+	skipTo : function skipTo(timeSeconds) {
+		if (this.video) {
+			this.video.currentTime = timeSeconds;
+		}
+	}
+}
+
+var popupOpen = function() {
+	if (!videoControl.video) {
+		videoControl.init();
+	}
+
+	videoControl.addHighlight();
+}
+
+var popupClose = function() {
+	videoControl.removeHighlight();
+}
+
+var setWwmClassStyle = function() {
+	var style = document.createElement('style');
+	style.type = 'text/css';
+	style.innerHTML = `
+	.wwmVideo {
+	    border: 2px solid #35D418;
+	    border-radius: 20px;
+	}`;
+	document.getElementsByTagName('head')[0].appendChild(style);
+}
 
 var handleCommand = function(message) {
 	var command = message['command'];
 
 	switch(command) {
 		case 'PLAY':
-			playVideo();
+			videoControl.play();
 			break;
 		case 'PAUSE':
-			pauseVideo();
+			videoControl.pause();
 			break;
 		case 'SKIP':
-			skipTo(message['time']);
+			videoControl.skipTo(message['time']);
 			break;
 		case 'POPUP_OPEN':
 			popupOpen();
@@ -33,95 +156,28 @@ var handleCommand = function(message) {
 			popupClose();
 			break;
 		case 'FIND':
-			findNextVideoElement();
+			videoControl.selectNextVideoElement();
 			break;
 		default:
 			console.log('Failed to interpret command : '+command);
 	}
 }
 
-var findNextVideoElement = function() {
-	current++;
-	var newElement = videoElements[current];
-	if (!newElement) {
-		current = 0;
-		newElement = videoElements[current];
-	}
-	utils.setVideoElement(newElement);
-}
-
-var popupClose = function() {
-	utils.removeHighlight(selectedVideo);
-}
-
-var popupOpen = function() {
-	if (!selectedVideo) {
-		initialSetup();
-	}
-
-	utils.addHighlight(selectedVideo);
-}
-
-var initialSetup = function() {
-	utils.setWwmClassStyle();
-	videoElements = $('video');
-	selectedVideo = videoElements[current];
-
-	!selectedVideo ? console.log('No video element found.') : '';
-}
-
-function playVideo() {
-	if (selectedVideo) {
-		selectedVideo.play();
-	}
-}
-
-function pauseVideo() {
-	if (selectedVideo) {
-		selectedVideo.pause();
-	}
-}
-
-function skipTo(time) {
-	console.log("Unsupported operation. skipTo("+time+")");
-}
-
-var utils = {
-	setVideoElement : function(newElement) {
-		if (selectedVideo) {
-			utils.removeHighlight(selectedVideo);
-		}
-		
-		selectedVideo = newElement;	
-
-		if (selectedVideo) {
-			utils.addHighlight(selectedVideo);
-		}
-	},
-
-	addHighlight : function(jSelector) {
-		$(jSelector).addClass('wwmVideo');
-	},
-
-	removeHighlight : function(jSelector) {
-		$(jSelector).removeClass('wwmVideo');
-	},
-
-	setWwmClassStyle : function() {
-		var style = document.createElement('style');
-		style.type = 'text/css';
-		style.innerHTML = `
-		.wwmVideo {
-		    border: 2px solid #35D418;
-		    border-radius: 20px;
-		}`;
-		document.getElementsByTagName('head')[0].appendChild(style);
-	}
-};
-
-
-// This is how we can read Chrome messages.
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  console.log("Command recieved at contentScript: "+message['command']);
-  handleCommand(message);
+var sendToBackgroundScript = function sendToBackgroundScript() {
+  chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
+  console.log(response);
 });
+}
+
+var init = function() {
+	var port = chrome.runtime.connect();
+	setWwmClassStyle();
+	videoControl.init();
+
+	chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+		console.log(sender);
+	  handleCommand(message);
+	});
+}
+
+init();
