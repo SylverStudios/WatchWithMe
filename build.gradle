@@ -8,6 +8,8 @@ version = '1.0'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+mainClassName = "com.sylver.watchwithme.api.App"
+
 buildscript {
   repositories {
     mavenCentral()
@@ -16,7 +18,7 @@ buildscript {
 
 // Set our project variables
 project.ext {
-  dropwizardVersion = '0.7.0'
+  dropwizardVersion = '0.9.2'
 }
 
 repositories {
@@ -25,12 +27,13 @@ repositories {
 
 dependencies {
   compile (
-    'io.dropwizard:dropwizard-core:' + dropwizardVersion
+    'io.dropwizard:dropwizard-core:' + dropwizardVersion,
+    'io.dropwizard:dropwizard-assets:' + dropwizardVersion
   )
   testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
 // Configure the run task to start the Dropwizard service
 run {
-  args 'server', 'example.yml'
+  args 'server', 'watch-with-me.yaml'
 }
