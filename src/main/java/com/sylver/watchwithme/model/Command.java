@@ -2,9 +2,6 @@ package com.sylver.watchwithme.model;
 
 import java.util.OptionalDouble;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sylver.watchwithme.jackson.OptionalDoubleSerializer;
-
 /**
  * This class is the form all commands from the server to the client will take.
  */
@@ -31,7 +28,6 @@ public class Command {
 		return type;
 	}
 
-	@JsonSerialize(using=OptionalDoubleSerializer.class)
 	public OptionalDouble getTime() {
 		return time;
 	}
