@@ -5,6 +5,7 @@ import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sylver.watchwithme.model.ClientEvent;
+import com.sylver.watchwithme.model.Command;
 import io.dropwizard.jackson.Jackson;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
@@ -50,11 +51,29 @@ public class MainWebsocketsServer {
     try {
       ClientEvent clientEvent = MAPPER.readValue(message, ClientEvent.class);
       LOGGER.info("[onMessage] ClientEvent read as: {}", clientEvent);
+      Command.Type commandType = null;
+      switch(clientEvent.getType()) {
+        case PLAY:
+          commandType = Command.Type.PLAY;
+          break;
+        case PAUSE:
+          commandType = Command.Type.PAUSE;
+          break;
+        case BUFFERING_START:
+          break;
+        case BUFFERING_COMPLETE:
+          break;
+        case SEEK:
+          break;
+      }
+      if (null != commandType) {
+        Command command = new Command(commandType, clientEvent.getTime());
+        for (Object someSession : sessions) {
+          ((Session)someSession).getAsyncRemote().sendText(MAPPER.writeValueAsString(command));
+        }
+      }
     } catch (IOException e) {
       LOGGER.info("[onMessage] Exception while trying to map message to ClientEvent\n{}", e);
-    }
-    for (Object someSession : sessions) {
-      ((Session)someSession).getAsyncRemote().sendText(message.toString());
     }
   }
   @OnClose
