@@ -3,6 +3,9 @@ package com.sylver.watchwithme.api;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sylver.watchwithme.model.ClientEvent;
+import io.dropwizard.jackson.Jackson;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +28,8 @@ import java.util.Set;
 @ExceptionMetered
 @ServerEndpoint(value="/ws", configurator=MainWebsocketsServer.SessionsAwareConfig.class)
 public class MainWebsocketsServer {
-  final static Logger LOGGER = LoggerFactory.getLogger(MainWebsocketsServer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MainWebsocketsServer.class);
+  private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
   private Set sessions;
 
@@ -35,16 +39,22 @@ public class MainWebsocketsServer {
     this.sessions = (Set)config.getUserProperties().get("sessions");
     if (!sessions.contains(session)) {
       sessions.add(session);
-      LOGGER.info("Added to sessions set, new size: {}", sessions.size());
+      LOGGER.info("[onOpen] Added to sessions set, new size: {}", sessions.size());
     }
     session.getAsyncRemote().sendText("welcome");
   }
   @OnMessage
   public void onMessageHandler(final Session session, final String message) {
     LOGGER.info("[onMessage] Handling session with id: {}", session.getId());
-    LOGGER.info("Sending message to all sessions: {}", message);
+    LOGGER.info("[onMessage] Message is: {}", message);
+    try {
+      ClientEvent clientEvent = MAPPER.readValue(message, ClientEvent.class);
+      LOGGER.info("[onMessage] ClientEvent read as: {}", clientEvent);
+    } catch (IOException e) {
+      LOGGER.info("[onMessage] Exception while trying to map message to ClientEvent\n{}", e);
+    }
     for (Object someSession : sessions) {
-      ((Session)someSession).getAsyncRemote().sendText(message);
+      ((Session)someSession).getAsyncRemote().sendText(message.toString());
     }
   }
   @OnClose
@@ -52,7 +62,7 @@ public class MainWebsocketsServer {
     LOGGER.info("[onClose] Handling session with id: {}", session.getId());
     if (sessions.contains(session)) {
       sessions.remove(session);
-      LOGGER.info("Removing from sessions set, new size: {}", sessions.size());
+      LOGGER.info("[onClose] Removing from sessions set, new size: {}", sessions.size());
     }
   }
 
