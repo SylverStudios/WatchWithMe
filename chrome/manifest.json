@@ -2,9 +2,24 @@
   "manifest_version": 2,
 
   "name": "Watch With Me",
-  "description": "This displays additional buttons in the UI to control videos",
+  "description": "Sync videos with your friends!!",
   "version": "1.0",
 
+  "icons": {
+        "64": "images/wwmLogo64.png"
+  },
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "http://*/",
+    "https://*/",
+    "file:///*/*",
+    "identity",
+    "identity.email"
+  ],
+
+// Dom Access
   "content_scripts": [
     {
       "matches" : ["https://*/*","file:///*/*"],
@@ -12,21 +27,30 @@
     }
   ],
 
+// Middle ware
   "background": {
     "scripts": ["library/jquery1.9.min.js", "background.js"]
   },
 
+// UI Page
   "browser_action": {
-    "default_icon": "image/tempImage.png",
-    "default_popup": "watchWithMebaseTest.html",
-    "default_title": "That syncing feeling"
+    "default_icon": {
+      "38": "images/wwmLogo38.png"
+    },
+    "default_title": "Watch With Me",
+    "default_popup": "browserAction.html"
   },
 
-  "permissions": [
-    "tabs",
-    "activeTab",
-    "https://*/",
-    "file:///*/*",
-    "https://ajax.googleapis.com/"
-  ]
+// adds key click functionality
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+J",
+        "mac": "MacCtrl+Shift+J",
+        "chromeos": "Ctrl+Shift+J",
+        "linux": "Ctrl+Shift+J"
+      },
+      "description": "Sends a message to start the extension. Doesn't seem to work."
+    }
+  }
 }
