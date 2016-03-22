@@ -7,160 +7,161 @@ Content scripts:
 */
 
 var videoControl = {
-	videoElements : undefined,
-	video : undefined,
-	currentVideo : 0,
-	actionEvents : "play pause seeking",
-	passiveEvents : "timeupdate",
+  videoElements : undefined,
+  video : undefined,
+  currentVideo : 0,
+  actionEvents : "play pause seeking",
+  passiveEvents : "timeupdate",
 
-	init : function init() {
-		this.videoElements = $('video');
-		this.video = this.videoElements[this.currentVideo];
+  init : function init() {
+    this.videoElements = $('video');
+    this.video = this.videoElements[this.currentVideo];
 
-		this.video ? this.addVideoListeners(this.video) : console.log('No video element found.');
-	},
+    this.video ? this.addVideoListeners(this.video) : console.log('No video element found.');
+  },
 
-	selectNextVideoElement : function() {
+  selectNextVideoElement : function() {
 
-		if (!this.videoElements || this.videoElements.length < 2) {
-			console.log('No other elements to select.');
-			return;
-		} else {
-			this.currentVideo >= this.videoElements.length ? this.currentVideo = 0 : this.currentVideo++;
-			this.setVideoElement(videoElements[currentVideo]);
-		}
+    if (!this.videoElements || this.videoElements.length < 2) {
+      console.log('No other elements to select.');
+      return;
+    } else {
+      this.currentVideo >= this.videoElements.length ? this.currentVideo = 0 : this.currentVideo++;
+      this.setVideoElement(videoElements[currentVideo]);
+    }
 
-	},
+  },
 
-	setVideoElement : function(newSelectedVideo) {
-		if (this.video) {
-			this.removeHightlight();
-			this.removeVideoListeners(this.video)
-		}
-		
-		this.video = newSelectedVideo;
+  setVideoElement : function(newSelectedVideo) {
+    if (this.video) {
+      this.removeHightlight();
+      this.removeVideoListeners(this.video)
+    }
 
-		if (this.video) {
-			this.addHighlight();
-			this.addVideoListeners(this.video);
-		}
-	},
+    this.video = newSelectedVideo;
 
-	addHighlight : function(jSelector) {
-		var addTo = jSelector ? jSelector : this.video;
-		$(addTo).addClass('wwmVideo');
-	},
+    if (this.video) {
+      this.addHighlight();
+      this.addVideoListeners(this.video);
+    }
+  },
 
-	removeHighlight : function(jSelector) {
-		var removeFrom = jSelector ? jSelector : this.video;
-		$(removeFrom).removeClass('wwmVideo');
-	},
+  addHighlight : function(jSelector) {
+    var addTo = jSelector ? jSelector : this.video;
+    $(addTo).addClass('wwmVideo');
+  },
 
-	videoListener : function(event) {
-		var eventType = event.type;
-		sendToBackgroundScript();
+  removeHighlight : function(jSelector) {
+    var removeFrom = jSelector ? jSelector : this.video;
+    $(removeFrom).removeClass('wwmVideo');
+  },
 
-		switch(eventType) {
-			case 'play':
-				console.log("play from: "+event.target.currentTime);
-				break;
-			case 'pause':
-				console.log("pause at: "+event.target.currentTime);
-				break;
-			case 'seeking':
-				console.log("seeking to: "+event.target.currentTime);
-				break;
-			default:
-				console.log("I Don't know how to hangle event: "+eventType);
-		}
-	},
+  videoListener : function(event) {
+    var eventType = event.type;
+    sendToBackgroundScript();
 
-	timeUpdateHandler : function(event) {
-		// This is happening too often I think, multiple times per second.
-		setTimeout(function() {
-			console.log("The timeout is working I hope, here is the event");
-			console.log(event);
-		}, 2000);
-	},
+    switch(eventType) {
+      case 'play':
+        console.log("play from: "+event.target.currentTime);
+        break;
+      case 'pause':
+        console.log("pause at: "+event.target.currentTime);
+        break;
+      case 'seeking':
+        console.log("seeking to: "+event.target.currentTime);
+        break;
+      default:
+        console.log("I Don't know how to hangle event: "+eventType);
+    }
+  },
 
-	addVideoListeners : function(jSelector) {
-		$(jSelector).on(this.actionEvents, this.videoListener);
-		// $(jSelector).on(this.passiveEvents, this.timeUpdateHandler);
 
-	},
+  timeUpdateHandler : function(event) {
+    // This is happening too often I think, multiple times per second.
+    setTimeout(function() {
+      console.log("The timeout is working I hope, here is the event");
+      console.log(event);
+    }, 2000);
+  },
 
-	removeVideoListeners : function(jSelector) {
-		$(jSelector).off(this.activeEvents, this.videoListener);
-		// $(jSelector).off(this.passiveEvents, this.timeUpdateHandler);
-	},
+  addVideoListeners : function(jSelector) {
+    $(jSelector).on(this.actionEvents, this.videoListener);
+    // $(jSelector).on(this.passiveEvents, this.timeUpdateHandler);
 
-	play : function play() {
-		if (this.video) {
-			this.video.play();
-		}
-	},
-	
-	pause : function pause() {
-		if (this.video) {
-			this.video.pause();
-		}
-	},
+  },
 
-	skipTo : function skipTo(timeSeconds) {
-		if (this.video) {
-			this.video.currentTime = timeSeconds;
-		}
-	}
+  removeVideoListeners : function(jSelector) {
+    $(jSelector).off(this.activeEvents, this.videoListener);
+    // $(jSelector).off(this.passiveEvents, this.timeUpdateHandler);
+  },
+
+  play : function play() {
+    if (this.video) {
+      this.video.play();
+    }
+  },
+
+  pause : function pause() {
+    if (this.video) {
+      this.video.pause();
+    }
+  },
+
+  skipTo : function skipTo(timeSeconds) {
+    if (this.video) {
+      this.video.currentTime = timeSeconds;
+    }
+  }
 }
 
 var popupOpen = function() {
-	if (!videoControl.video) {
-		videoControl.init();
-	}
+  if (!videoControl.video) {
+    videoControl.init();
+  }
 
-	videoControl.addHighlight();
+  videoControl.addHighlight();
 }
 
 var popupClose = function() {
-	videoControl.removeHighlight();
+  videoControl.removeHighlight();
 }
 
 var setWwmClassStyle = function() {
-	var style = document.createElement('style');
-	style.type = 'text/css';
-	style.innerHTML = `
-	.wwmVideo {
-	    border: 2px solid #35D418;
-	    border-radius: 20px;
-	}`;
-	document.getElementsByTagName('head')[0].appendChild(style);
+  var style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = `
+  .wwmVideo {
+      border: 2px solid #35D418;
+      border-radius: 20px;
+  }`;
+  document.getElementsByTagName('head')[0].appendChild(style);
 }
 
 var handleCommand = function(message) {
-	var command = message['command'];
+  var command = message['command'];
 
-	switch(command) {
-		case 'PLAY':
-			videoControl.play();
-			break;
-		case 'PAUSE':
-			videoControl.pause();
-			break;
-		case 'SKIP':
-			videoControl.skipTo(message['time']);
-			break;
-		case 'POPUP_OPEN':
-			popupOpen();
-			break;
-		case 'POPUP_CLOSE':
-			popupClose();
-			break;
-		case 'FIND':
-			videoControl.selectNextVideoElement();
-			break;
-		default:
-			console.log('Failed to interpret command : '+command);
-	}
+  switch(command) {
+    case 'PLAY':
+      videoControl.play();
+      break;
+    case 'PAUSE':
+      videoControl.pause();
+      break;
+    case 'SKIP':
+      videoControl.skipTo(message['time']);
+      break;
+    case 'POPUP_OPEN':
+      popupOpen();
+      break;
+    case 'POPUP_CLOSE':
+      popupClose();
+      break;
+    case 'FIND':
+      videoControl.selectNextVideoElement();
+      break;
+    default:
+      console.log('Failed to interpret command : '+command);
+  }
 }
 
 var sendToBackgroundScript = function sendToBackgroundScript() {
@@ -170,14 +171,14 @@ var sendToBackgroundScript = function sendToBackgroundScript() {
 }
 
 var init = function() {
-	var port = chrome.runtime.connect();
-	setWwmClassStyle();
-	videoControl.init();
+  var port = chrome.runtime.connect();
+  setWwmClassStyle();
+  videoControl.init();
 
-	chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-		console.log(sender);
-	  handleCommand(message);
-	});
+  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    console.log(sender);
+    handleCommand(message);
+  });
 }
 
 init();

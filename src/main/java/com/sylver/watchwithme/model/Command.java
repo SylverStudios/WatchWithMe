@@ -1,47 +1,62 @@
 package com.sylver.watchwithme.model;
 
-import java.util.OptionalDouble;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sylver.watchwithme.jackson.OptionalDoubleSerializer;
+import java.util.Optional;
 
 /**
  * This class is the form all commands from the server to the client will take.
  */
 public class Command {
 
-	public enum Type {
-		PLAY,
-		PAUSE,
-		PAUSE_REQUEST
-	}
+  public enum Type {
+    PLAY,
+    PAUSE,
+    PAUSE_REQUEST
+  }
 
-	private final Type type;
-	private final OptionalDouble time;
+  private final Type type;
+  private final Optional<Double> time;
 
-	public Command(
-		final Type type,
-		final OptionalDouble time
-	) {
-		this.type = type;
-		this.time = time == null ? OptionalDouble.empty() : time;
-	}
+  @JsonCreator
+  public Command(
+    @JsonProperty(value = "type", required = true) final Type type,
+    @JsonProperty("time") final Double time
+  ) {
+    this.type = type;
+    this.time = Optional.ofNullable(time);
+  }
 
-	public Type getType() {
-		return type;
-	}
+  public Type getType() {
+    return type;
+  }
 
-	@JsonSerialize(using=OptionalDoubleSerializer.class)
-	public OptionalDouble getTime() {
-		return time;
-	}
+  public Double getTime() {
+    return time.isPresent() ? time.get() : null;
+  }
 
-	public String toString() {
-		return String.format(
-			"%s{Type: %s, Time: %s}",
-			getClass().toString(),
-			type.name(),
-			time
-		);
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Command command = (Command) o;
+    return type == command.type &&
+      Objects.equal(time, command.time);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(type, time);
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("type", type)
+      .add("time", time)
+      .toString();
+  }
 }
