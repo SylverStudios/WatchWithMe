@@ -6,7 +6,10 @@ Background script:
 - A middle man between the Browser Action and the Content Script.
 */
 
+var serverIp = '52.38.66.94';
+
 var myUsername;
+var websocket;
 var videoHistory = {
   list : [],
 
@@ -26,48 +29,41 @@ var videoHistory = {
   }
 };
 
-var createCommandObject = function createCommandObject(commandName, commandSender, time) {
-  var commandObject = {};
-
-  commandObject['command'] = commandName ? commandName : 'NO_COMMAND';
-  commandObject['user'] = commandSender ? commandSender : myUsername;
-  commandObject['time'] = time ? time : '';
-
-  return commandObject;
-}
-
-var sendToContentScript = function sendToContentScript(commandObject) {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      chrome.tabs.sendMessage(tabs[0].id, commandObject);
-  });
-}
-
-var sendToServer = function sendToServer(commandObject) {
-  console.log('Unsupported Operation - SendToServer.');
-}
-
-
-// Internal - from browserAction to content script and server.
-var sendCommand = function sendCommand(commandName, commandSender, time) {
-  var command = createCommandObject(commandName, commandSender, time);
-
-  sendToContentScript(command);
-
-  commandSender == myUsername ? sendToServer(command) : '';
-
-  if (command.command.indexOf('_') == -1) {
-    videoHistory.add(command);
+function handleMessageFromWebsocket(e) {
+  console.log('[handleMessageFromWebsocket] Event is: ', e);
+  var message;
+  try {
+    message = JSON.parse(e.data);
+    sendMessageToContentScript(message);
+  } catch(e) {
+    console.log('[handleMessageFromWebsocket] Cannot parse message, exception is: ', e);
   }
 }
 
-var handleMessageFromContentScript = function(message, sender, sendResponse) {
-  console.log("Background caught a message.");
-  console.log(sender);
-  console.log("Can I catch my own messages?");
-  console.log(message.greeting);
+function sendMessageToWebsocket(message) {
+  console.log('[sendMessageToWebsocket] Message is: ', message);
+  websocket.send(JSON.stringify(message));
+}
+
+function handleMessageFromContentScript(message) {
+  console.log('[handleMessageFromContentScript] Message is: ', message);
+  if (message.type) {
+    sendMessageToWebsocket(message);
+  } else {
+    console.log('[contentScript] ', message);
+  }
 };
 
+function sendMessageToContentScript(message) {
+  console.log('[sendMessageToContentScript] Message is: ', message);
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+      console.log('[sendMessageToContentScript] Sending to tab: ', tabs[0]);;
+      chrome.tabs.sendMessage(tabs[0].id, message);
+  });
+}
+
 var init = function() {
+  console.log('[init]');
   // Set myUsername
   chrome.identity.getProfileUserInfo(function(userInfo) {
     myUsername = userInfo.email.split("@")[0];
@@ -75,8 +71,12 @@ var init = function() {
 
   chrome.runtime.onMessage.addListener(handleMessageFromContentScript);
 
+  websocket = new WebSocket('ws://' + serverIp + ':8080/ws');
+  websocket.onmessage = handleMessageFromWebsocket;
+  websocket.onopen = function(e) {
+    console.log('[websocket onopen]');
+  }
   // Read other stuff out of browser storage?
-  // Connect to websocket
 }
 
 init();

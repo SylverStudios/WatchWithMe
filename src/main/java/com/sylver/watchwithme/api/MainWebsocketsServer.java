@@ -86,12 +86,15 @@ public class MainWebsocketsServer {
   }
 
   public static class SessionsAwareConfig extends ServerEndpointConfig.Configurator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionsAwareConfig.class);
+
     private Set<Session> sessions;
 
     public SessionsAwareConfig() {}
 
     @Override
     public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
+      LOGGER.info("[modifyHandshake] Making handshake.");
       if (sessions == null) {
         sessions = new ConcurrentHashSet<Session>();
       }
