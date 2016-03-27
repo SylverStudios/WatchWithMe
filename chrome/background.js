@@ -10,6 +10,8 @@ var serverIp = '52.38.66.94';
 
 var myUsername;
 var websocket;
+var websocketOnOpenCallbacks = [];
+var websocketOnCloseCallbacks = [];
 var videoHistory = {
   list : [],
 
@@ -29,14 +31,56 @@ var videoHistory = {
   }
 };
 
-function handleMessageFromWebsocket(e) {
-  console.log('[handleMessageFromWebsocket] Event is: ', e);
+function isWebsocketOpen() {
+  return websocket && websocket.readyState === websocket.OPEN;
+}
+
+function connectToWebsocket() {
+  if (isWebsocketOpen()) {
+    websocket.close();
+  }
+  websocket = new WebSocket('ws://' + serverIp + ':8080/ws');
+  websocket.onmessage = handleMessageFromWebsocket;
+  websocket.onopen = function(e) {
+    console.log('[handleMessageFromWebsocket] Websocket connection established successfully.');
+    for (var i = 0; i < websocketOnOpenCallbacks.length; i++) {
+      websocketOnOpenCallbacks[i]();
+    }
+  };
+  websocket.onclose = function(e) {
+    console.log('[handleMessageFromWebsocket] Websocket connection closed.');
+    for (var i = 0; i < websocketOnCloseCallbacks.length; i++) {
+      websocketOnCloseCallbacks[i]();
+    }
+  };
+}
+
+function subscribeToWebsocketEvents(onOpenCallback, onCloseCallback) {
+  if (websocketOnOpenCallbacks.indexOf(onOpenCallback) === -1) {
+    websocketOnOpenCallbacks.push(onOpenCallback);
+  }
+  if (websocketOnCloseCallbacks.indexOf(onCloseCallback) === -1) {
+    websocketOnCloseCallbacks.push(onCloseCallback);
+  }
+};
+
+function handleMessageFromBrowserAction(message) {
+  console.log('[handleMessageFromBrowserAction] Message is: message');
+  if (message.type === 'CONNECT') {
+    connectToWebsocket();
+  } else {
+    sendMessageToContentScript(message);
+  }
+}
+
+function handleMessageFromWebsocket(event) {
+  console.log('[handleMessageFromWebsocket] Event is: ', event);
   var message;
   try {
-    message = JSON.parse(e.data);
+    message = JSON.parse(event.data);
     sendMessageToContentScript(message);
-  } catch(e) {
-    console.log('[handleMessageFromWebsocket] Cannot parse message, exception is: ', e);
+  } catch(exception) {
+    console.log('[handleMessageFromWebsocket] Cannot parse message, exception is: ', exception);
   }
 }
 
@@ -71,11 +115,6 @@ var init = function() {
 
   chrome.runtime.onMessage.addListener(handleMessageFromContentScript);
 
-  websocket = new WebSocket('ws://' + serverIp + ':8080/ws');
-  websocket.onmessage = handleMessageFromWebsocket;
-  websocket.onopen = function(e) {
-    console.log('[websocket onopen]');
-  }
   // Read other stuff out of browser storage?
 }
 

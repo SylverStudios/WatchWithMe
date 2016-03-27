@@ -148,10 +148,14 @@ function handleMessageFromBackgroundScript(message) {
       break;
     case 'PAUSE':
       videoControl.pause();
-      videoControl.skipTo(message['time']);
+      if (message['time'] !== undefined) {
+        videoControl.skipTo(message['time']);
+      }
       break;
     case 'SKIP':
-      videoControl.skipTo(message['time']);
+      if (message['time'] !== undefined) {
+        videoControl.skipTo(message['time']);
+      }
       break;
     case 'POPUP_OPEN':
       popupOpen();

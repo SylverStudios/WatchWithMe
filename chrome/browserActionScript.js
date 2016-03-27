@@ -1,4 +1,4 @@
-/*
+/*CONNECT
 Browser Action:
 - Has a visible html element.
 - Runs everytime the popup is opened.
@@ -10,21 +10,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var background = chrome.extension.getBackgroundPage();
 
+  function sendMessageToBackground(message) {
+    console.log('[sendMessageToBackground] Message is: ', message);
+    background.handleMessageFromBrowserAction(message);
+  };
+
   var action = {
-    CREATE : function() { background.sendCommand('CREATE'); populateHistory() },
-    JOIN : function() { background.sendCommand('JOIN'); populateHistory() },
-    FIND : function() { background.sendCommand('FIND'); populateHistory() },
-    PLAY : function() { background.sendCommand('PLAY'); populateHistory() },
-    PAUSE : function() { background.sendCommand('PAUSE'); populateHistory() },
-    SKIP : function() { 
+    CONNECT : function() { sendMessageToBackground({type: 'CONNECT'}); populateHistory() },
+    FIND : function() { sendMessageToBackground({type: 'FIND'}); populateHistory() },
+    PLAY : function() { sendMessageToBackground({type: 'PLAY'}); populateHistory() },
+    PAUSE : function() { sendMessageToBackground({type: 'PAUSE'}); populateHistory() },
+    SKIP : function() {
       var time = $('#skip-input').val();
-      background.sendCommand('SKIP', '', time);
+      sendMessageToBackground({type: 'SKIP', time: time});
       populateHistory();
     }
   }
 
   var bindButtons = function() {
-    $('#create-btn').click(action.CREATE);
+    $('#connect-btn').click(action.CONNECT);
     $('#join-btn').click(action.JOIN);
     $('#find-btn').click(action.FIND);
     $('#play-btn').click(action.PLAY);
@@ -50,8 +54,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var addUnloadListener = function() {
     addEventListener("unload", function (event) {
-         background.sendCommand('POPUP_CLOSE');
+         sendMessageToBackground({type: 'POPUP_CLOSE'});
     }, true);
+  }
+
+  function listenToBackgroundWebsocket() {
+    if (background.isWebsocketOpen()) {
+      $('#connection-status').text('Connected');
+    } else {
+      $('#connection-status').text('Not Connected');
+    }
+    background.subscribeToWebsocketEvents(
+      function onOpen() {
+        console.log('onopen')
+        $('#connection-status').text('Connected');
+      },
+      function onClose() {
+        $('#connection-status').text('Not Connected');
+      }
+    )
   }
 
   var init = function() {
@@ -59,7 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
     populateHistory();
     populateGroup();
     addUnloadListener();
-    background.sendCommand('POPUP_OPEN');    
+    listenToBackgroundWebsocket();
+    sendMessageToBackground({type: 'POPUP_OPEN'});
   }
 
   init();
