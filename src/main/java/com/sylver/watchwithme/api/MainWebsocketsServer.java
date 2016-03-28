@@ -42,7 +42,6 @@ public class MainWebsocketsServer {
       sessions.add(session);
       LOGGER.info("[onOpen] Added to sessions set, new size: {}", sessions.size());
     }
-    session.getAsyncRemote().sendText("welcome");
   }
   @OnMessage
   public void onMessageHandler(final Session session, final String message) {
@@ -79,6 +78,7 @@ public class MainWebsocketsServer {
   @OnClose
   public void myOnClose(final Session session, final CloseReason cr) {
     LOGGER.info("[onClose] Handling session with id: {}", session.getId());
+    LOGGER.info("[onClose] Close reason: {}", cr.getReasonPhrase());
     if (sessions.contains(session)) {
       sessions.remove(session);
       LOGGER.info("[onClose] Removing from sessions set, new size: {}", sessions.size());
@@ -86,12 +86,15 @@ public class MainWebsocketsServer {
   }
 
   public static class SessionsAwareConfig extends ServerEndpointConfig.Configurator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionsAwareConfig.class);
+
     private Set<Session> sessions;
 
     public SessionsAwareConfig() {}
 
     @Override
     public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
+      LOGGER.info("[modifyHandshake] Making handshake.");
       if (sessions == null) {
         sessions = new ConcurrentHashSet<Session>();
       }

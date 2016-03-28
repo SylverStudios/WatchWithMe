@@ -14,6 +14,7 @@ var videoControl = {
   passiveEvents : "timeupdate",
 
   init : function init() {
+    console.log('[videoControl init]');
     this.videoElements = $('video');
     this.video = this.videoElements[this.currentVideo];
 
@@ -56,25 +57,6 @@ var videoControl = {
     $(removeFrom).removeClass('wwmVideo');
   },
 
-  videoListener : function(event) {
-    var eventType = event.type;
-    sendToBackgroundScript();
-
-    switch(eventType) {
-      case 'play':
-        console.log("play from: "+event.target.currentTime);
-        break;
-      case 'pause':
-        console.log("pause at: "+event.target.currentTime);
-        break;
-      case 'seeking':
-        console.log("seeking to: "+event.target.currentTime);
-        break;
-      default:
-        console.log("I Don't know how to hangle event: "+eventType);
-    }
-  },
-
 
   timeUpdateHandler : function(event) {
     // This is happening too often I think, multiple times per second.
@@ -85,13 +67,13 @@ var videoControl = {
   },
 
   addVideoListeners : function(jSelector) {
-    $(jSelector).on(this.actionEvents, this.videoListener);
+    $(jSelector).on(this.actionEvents, handleEventFromVideo);
     // $(jSelector).on(this.passiveEvents, this.timeUpdateHandler);
 
   },
 
   removeVideoListeners : function(jSelector) {
-    $(jSelector).off(this.activeEvents, this.videoListener);
+    $(jSelector).off(this.activeEvents, handleEventFromVideo);
     // $(jSelector).off(this.passiveEvents, this.timeUpdateHandler);
   },
 
@@ -126,7 +108,8 @@ var popupClose = function() {
   videoControl.removeHighlight();
 }
 
-var setWwmClassStyle = function() {
+function setWwmClassStyle() {
+  console.log('[setWwmClassStyle]');
   var style = document.createElement('style');
   style.type = 'text/css';
   style.innerHTML = `
@@ -137,18 +120,42 @@ var setWwmClassStyle = function() {
   document.getElementsByTagName('head')[0].appendChild(style);
 }
 
-var handleCommand = function(message) {
-  var command = message['command'];
+function handleEventFromVideo(event) {
+  console.log('[handleEventFromVideo] Event is: ', event);
+  var eventType = event.type;
 
-  switch(command) {
+  switch(eventType) {
+    case 'play':
+      sendMessageToBackgroundScript({type: 'PLAY'});
+      break;
+    case 'pause':
+      sendMessageToBackgroundScript({type: 'PAUSE', time: event.target.currentTime});
+      break;
+    case 'seeking':
+      console.log("[handleEventFromVideo] Seeking to: ", event.target.currentTime);
+      break;
+    default:
+      console.log("[handleEventFromVideo] I don't know how to hangle event: ", eventType);
+  }
+}
+
+function handleMessageFromBackgroundScript(message) {
+  console.log('[handleMessageFromBackgroundScript] Message is: ', message);
+  var type = message['type'];
+  switch(type) {
     case 'PLAY':
       videoControl.play();
       break;
     case 'PAUSE':
       videoControl.pause();
+      if (message['time'] !== undefined) {
+        videoControl.skipTo(message['time']);
+      }
       break;
     case 'SKIP':
-      videoControl.skipTo(message['time']);
+      if (message['time'] !== undefined) {
+        videoControl.skipTo(message['time']);
+      }
       break;
     case 'POPUP_OPEN':
       popupOpen();
@@ -160,24 +167,26 @@ var handleCommand = function(message) {
       videoControl.selectNextVideoElement();
       break;
     default:
-      console.log('Failed to interpret command : '+command);
+      console.log('[handleMessageFromBackgroundScript] Failed to interpret message type: ', type);
   }
 }
 
-var sendToBackgroundScript = function sendToBackgroundScript() {
-  chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-  console.log(response);
-});
+function sendMessageToBackgroundScript(message) {
+  console.log('[sendMessageToBackgroundScript] Sending message: ', message);
+  chrome.runtime.sendMessage(message, function(response) {
+    console.log('[sendMessageToBackgroundScript sendMessage callback] Response is: ', response);
+  });
 }
 
 var init = function() {
+  console.log('[init]');
   var port = chrome.runtime.connect();
   setWwmClassStyle();
   videoControl.init();
 
   chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    console.log(sender);
-    handleCommand(message);
+    console.log('[contentScript init addListener callback] Sender is: ', sender);
+    handleMessageFromBackgroundScript(message);
   });
 }
 
