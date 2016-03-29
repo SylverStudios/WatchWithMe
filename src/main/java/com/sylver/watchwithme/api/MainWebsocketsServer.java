@@ -68,7 +68,9 @@ public class MainWebsocketsServer {
       if (null != commandType) {
         Command command = new Command(commandType, clientEvent.getTime());
         for (Object someSession : sessions) {
-          ((Session)someSession).getAsyncRemote().sendText(MAPPER.writeValueAsString(command));
+          if (someSession != session) {
+            ((Session)someSession).getAsyncRemote().sendText(MAPPER.writeValueAsString(command));
+          }
         }
       }
     } catch (IOException e) {

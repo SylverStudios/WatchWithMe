@@ -17,8 +17,11 @@ var videoControl = {
     console.log('[videoControl init]');
     this.videoElements = $('video');
     this.video = this.videoElements[this.currentVideo];
-
-    this.video ? this.addVideoListeners(this.video) : console.log('No video element found.');
+    if (this.video) {
+      this.addPlayListener();
+      this.addPauseListener();
+      this.addSeekListener();
+    }
   },
 
   selectNextVideoElement : function() {
@@ -36,14 +39,14 @@ var videoControl = {
   setVideoElement : function(newSelectedVideo) {
     if (this.video) {
       this.removeHightlight();
-      this.removeVideoListeners(this.video)
+      this.removeVideoListeners()
     }
 
     this.video = newSelectedVideo;
 
     if (this.video) {
       this.addHighlight();
-      this.addVideoListeners(this.video);
+      this.addVideoListeners();
     }
   },
 
@@ -66,31 +69,81 @@ var videoControl = {
     }, 2000);
   },
 
-  addVideoListeners : function(jSelector) {
-    $(jSelector).on(this.actionEvents, handleEventFromVideo);
-    // $(jSelector).on(this.passiveEvents, this.timeUpdateHandler);
-
+  addPlayListener: function() {
+    console.log('[addPlayListener]');
+    if (this.video) $(this.video).on('play', handleVideoPlayEvent)
+  },
+  removePlayListener: function() {
+    console.log('[removePlayListener]');
+    if (this.video) $(this.video).off('play', handleVideoPlayEvent)
+  },
+  addPauseListener: function() {
+    console.log('[addPauseListener]');
+    if (this.video) $(this.video).on('pause', handleVideoPauseEvent)
+  },
+  removePauseListener: function() {
+    console.log('[removePauseListener]');
+    if (this.video) $(this.video).off('pause', handleVideoPauseEvent)
+  },
+  addSeekListener: function() {
+    console.log('[addSeekListener]');
+    if (this.video) $(this.video).on('seeking', handleVideoSeekEvent)
+  },
+  removeSeekListener: function() {
+    console.log('[removeSeekListener]');
+    if (this.video) $(this.video).off('seeking', handleVideoSeekEvent)
   },
 
-  removeVideoListeners : function(jSelector) {
-    $(jSelector).off(this.activeEvents, handleEventFromVideo);
-    // $(jSelector).off(this.passiveEvents, this.timeUpdateHandler);
+  addVideoListeners: function() {
+    console.log('[addVideoListeners]');
+    if (this.video) {
+      this.addPlayListener();
+      this.addPauseListener();
+      this.addSeekListener();
+    }
+  },
+
+  removeVideoListeners : function() {
+    console.log('[removeVideoListeners]');
+    if (this.video) {
+      this.removePlayListener();
+      this.removePauseListener();
+      this.removeSeekListener();
+    }
   },
 
   play : function play() {
+    console.log('[videoControl::play]');
+    var self = this;
     if (this.video) {
+      this.removePlayListener();
+      $(this.video).one('play', function() {
+        self.addPlayListener()
+      });
       this.video.play();
     }
   },
 
   pause : function pause() {
+    console.log('[videoControl::pause]');
+    var self = this;
     if (this.video) {
+      this.removePauseListener();
+      $(this.video).one('pause', function() {
+        self.addPauseListener();
+      });
       this.video.pause();
     }
   },
 
   skipTo : function skipTo(timeSeconds) {
+    console.log('[videoControl::skipTo] Time is: ', timeSeconds);
+    var self = this;
     if (this.video) {
+      this.removeSeekListener();
+      $(this.video).one('seeking', function() {
+        self.addSeekListener();
+      });
       this.video.currentTime = timeSeconds;
     }
   }
@@ -120,23 +173,21 @@ function setWwmClassStyle() {
   document.getElementsByTagName('head')[0].appendChild(style);
 }
 
-function handleEventFromVideo(event) {
-  console.log('[handleEventFromVideo] Event is: ', event);
-  var eventType = event.type;
+function handleVideoPlayEvent() {
+  console.log('[handleVideoPlayEvent]');
+  sendMessageToBackgroundScript({type: 'PLAY'});
+}
 
-  switch(eventType) {
-    case 'play':
-      sendMessageToBackgroundScript({type: 'PLAY'});
-      break;
-    case 'pause':
-      sendMessageToBackgroundScript({type: 'PAUSE', time: event.target.currentTime});
-      break;
-    case 'seeking':
-      console.log("[handleEventFromVideo] Seeking to: ", event.target.currentTime);
-      break;
-    default:
-      console.log("[handleEventFromVideo] I don't know how to hangle event: ", eventType);
-  }
+function handleVideoPauseEvent(e) {
+  var time = e.target.currentTime;
+  console.log('[handleVideoPauseEvent] Time is: ', time);
+  sendMessageToBackgroundScript({type: 'PAUSE', time: time});
+}
+
+function handleVideoSeekEvent(e) {
+  var time = e.target.currentTime;
+  console.log('[handleVideoSeekEvent] Time is: ', time);
+  sendMessageToBackgroundScript({type: 'SEEK', time: time});
 }
 
 function handleMessageFromBackgroundScript(message) {
