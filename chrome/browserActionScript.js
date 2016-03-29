@@ -17,23 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var action = {
     CONNECT : function() { sendMessageToBackground({type: 'CONNECT'}); populateHistory() },
-    FIND : function() { sendMessageToBackground({type: 'FIND'}); populateHistory() },
-    PLAY : function() { sendMessageToBackground({type: 'PLAY'}); populateHistory() },
-    PAUSE : function() { sendMessageToBackground({type: 'PAUSE'}); populateHistory() },
-    SKIP : function() {
-      var time = $('#skip-input').val();
-      sendMessageToBackground({type: 'SKIP', time: time});
-      populateHistory();
-    }
+    FIND : function() { sendMessageToBackground({type: 'FIND'}); populateHistory() }
   }
 
   var bindButtons = function() {
     $('#connect-btn').click(action.CONNECT);
-    $('#join-btn').click(action.JOIN);
     $('#find-btn').click(action.FIND);
-    $('#play-btn').click(action.PLAY);
-    $('#pause-btn').click(action.PAUSE);
-    $('#skip-btn').click(action.SKIP);
   }
 
   // Will need to use chrome-storage to make this work in real time vs. on page load
