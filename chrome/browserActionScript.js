@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Will need to use chrome-storage to make this work in real time vs. on page load
   var populateHistory = function() {
-    var history = background.videoHistory.list;
+    var history = background.videoHistory.queue;
     var historyPageElement = $('#history-list');
     $(historyPageElement).empty();
 
