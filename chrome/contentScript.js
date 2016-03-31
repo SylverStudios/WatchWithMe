@@ -18,9 +18,7 @@ var videoControl = {
     this.videoElements = $('video');
     this.video = this.videoElements[this.currentVideo];
     if (this.video) {
-      this.addPlayListener();
-      this.addPauseListener();
-      this.addSeekListener();
+      this.addVideoListeners();
     }
   },
 
@@ -38,7 +36,7 @@ var videoControl = {
 
   setVideoElement : function(newSelectedVideo) {
     if (this.video) {
-      this.removeHightlight();
+      this.removeHighlight();
       this.removeVideoListeners()
     }
 
@@ -58,15 +56,6 @@ var videoControl = {
   removeHighlight : function(jSelector) {
     var removeFrom = jSelector ? jSelector : this.video;
     $(removeFrom).removeClass('wwmVideo');
-  },
-
-
-  timeUpdateHandler : function(event) {
-    // This is happening too often I think, multiple times per second.
-    setTimeout(function() {
-      console.log("The timeout is working I hope, here is the event");
-      console.log(event);
-    }, 2000);
   },
 
   addPlayListener: function() {
@@ -149,6 +138,12 @@ var videoControl = {
   }
 }
 
+function logFunctionName(callee) {
+  var name = callee.substr('function '.length);
+  name = name.substr(0, name.indexOf('('));
+  console.log('['+name+']');
+}
+
 var popupOpen = function() {
   if (!videoControl.video) {
     videoControl.init();
@@ -162,15 +157,8 @@ var popupClose = function() {
 }
 
 function setWwmClassStyle() {
-  console.log('[setWwmClassStyle]');
-  var style = document.createElement('style');
-  style.type = 'text/css';
-  style.innerHTML = `
-  .wwmVideo {
-      border: 2px solid #35D418;
-      border-radius: 20px;
-  }`;
-  document.getElementsByTagName('head')[0].appendChild(style);
+  logFunctionName(arguments.callee.toString());
+  $("<style type='text/css'> .wwmVideo{ border: 2px solid #35D418; border-radius: 20px;} </style>").appendTo("head");
 }
 
 function handleVideoPlayEvent() {
@@ -211,6 +199,7 @@ function handleMessageFromBackgroundScript(message) {
     case 'POPUP_OPEN':
       popupOpen();
       break;
+    case 'TAB_HOME_ACTIVE':
     case 'POPUP_CLOSE':
       popupClose();
       break;
@@ -224,9 +213,7 @@ function handleMessageFromBackgroundScript(message) {
 
 function sendMessageToBackgroundScript(message) {
   console.log('[sendMessageToBackgroundScript] Sending message: ', message);
-  chrome.runtime.sendMessage(message, function(response) {
-    console.log('[sendMessageToBackgroundScript sendMessage callback] Response is: ', response);
-  });
+  chrome.runtime.sendMessage(message);
 }
 
 var init = function() {

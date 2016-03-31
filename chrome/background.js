@@ -12,24 +12,42 @@ var myUsername;
 var websocket;
 var websocketOnOpenCallbacks = [];
 var websocketOnCloseCallbacks = [];
+
+var tabId;
+
 var videoHistory = {
-  list : [],
+  queue : [],
 
-  add : function(commandObject) {
-    var log = commandObject.user + ' : ' + commandObject.command;
-    commandObject.time ? log += ' to ' + commandObject.time + ' seconds.' : '.';
+  add : function(message) {
+    var type = message.type;
+    var user = message.user ? message.user : 'Foreign';
+    var time = message.time;
 
-    this.list.push(log);
+    var log =  user + ' : ' + type;
+    log += time ? ' to/at ' + Math.round(time) + ' seconds.' : '.';
+
+    this.queue.push(log);
 
     this.trim();
+    console.log('[videoHistory::add] Added history item: ', log);
   },
 
   trim : function() {
-    if (this.list.length > 10) {
-      this.list.shift();
+    if (this.queue.length > 10) {
+      this.queue.shift();
     }
   }
 };
+
+function connectTabToWebsocket() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+    console.log('[connectTabToWebsocket] Setting home tab as: ', tabs[0].id);
+    console.log('[connectTabToWebsocket] Home tab url is: ', tabs[0].url);
+    tabId = tabs[0].id;
+  });
+
+  connectToWebsocket();
+}
 
 function isWebsocketOpen() {
   return websocket && websocket.readyState === websocket.OPEN;
@@ -65,9 +83,9 @@ function subscribeToWebsocketEvents(onOpenCallback, onCloseCallback) {
 };
 
 function handleMessageFromBrowserAction(message) {
-  console.log('[handleMessageFromBrowserAction] Message is: message');
+  console.log('[handleMessageFromBrowserAction] Message is: ', message);
   if (message.type === 'CONNECT') {
-    connectToWebsocket();
+    connectTabToWebsocket();
   } else {
     sendMessageToContentScript(message);
   }
@@ -79,6 +97,7 @@ function handleMessageFromWebsocket(event) {
   try {
     message = JSON.parse(event.data);
     sendMessageToContentScript(message);
+    videoHistory.add(message);
   } catch(exception) {
     console.log('[handleMessageFromWebsocket] Cannot parse message, exception is: ', exception);
   }
@@ -86,13 +105,16 @@ function handleMessageFromWebsocket(event) {
 
 function sendMessageToWebsocket(message) {
   console.log('[sendMessageToWebsocket] Message is: ', message);
-  websocket.send(JSON.stringify(message));
+  websocket ? websocket.send(JSON.stringify(message)) : console.log('Websock isn\'t open.');
 }
 
 function handleMessageFromContentScript(message) {
   console.log('[handleMessageFromContentScript] Message is: ', message);
   if (message.type) {
     sendMessageToWebsocket(message);
+
+    message.user = myUsername;
+    videoHistory.add(message);
   } else {
     console.log('[contentScript] ', message);
   }
@@ -100,10 +122,21 @@ function handleMessageFromContentScript(message) {
 
 function sendMessageToContentScript(message) {
   console.log('[sendMessageToContentScript] Message is: ', message);
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      console.log('[sendMessageToContentScript] Sending to tab: ', tabs[0]);;
-      chrome.tabs.sendMessage(tabs[0].id, message);
-  });
+  if (tabId) {
+    console.log('[sendMessageToContentScript] Sending message to home tab: ', tabId);
+    chrome.tabs.sendMessage(tabId, message);
+  } else {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+      tabs[0] ? chrome.tabs.sendMessage(tabs[0].id, message) : console.log('No active tab or set home tab.');
+    });
+  }
+}
+
+function handleTabChange(activeInfoEvent) {
+  if (tabId && activeInfoEvent.tabId == tabId) {
+    sendMessageToContentScript({type: 'TAB_HOME_ACTIVE'});
+  }
+
 }
 
 var init = function() {
@@ -114,6 +147,8 @@ var init = function() {
   });
 
   chrome.runtime.onMessage.addListener(handleMessageFromContentScript);
+
+  chrome.tabs.onActivated.addListener(handleTabChange);
 
   // Read other stuff out of browser storage?
 }
