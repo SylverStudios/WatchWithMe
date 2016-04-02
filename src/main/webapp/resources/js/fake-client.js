@@ -1,4 +1,5 @@
-var serverIp = '52.38.66.94';
+// var serverIp = '52.38.66.94';
+var serverIp = '127.0.0.1';
 
 var websocket;
 var websocketOnOpenCallbacks = [];
@@ -13,20 +14,18 @@ addListeners();
 
 // Video stuff
 function addListeners() {
-  $(video).on('play pause seeking', handleVideoEvent);
+  $(video).on('play pause', handleVideoEvent);
 }
 
 function removeListeners() {
-  $(video).off('play pause seeking', handleVideoEvent);
+  $(video).off('play pause', handleVideoEvent);
 }
 
 function handleVideoEvent(event) {
-  var message = {user: username, type: event.type, time: event.target.currentTime};
-  console.log(message);
+  var message = {username: username, type: event.type, time: event.target.currentTime};
 
-  var messageInOldSocketFormat = {type: event.type, time: event.target.currentTime};
-
-  sendMessageToWebsocket(messageInOldSocketFormat);
+  console.log('[handleVideoEvent] Outgoing message is: ', message);
+  websocket ? websocket.send(JSON.stringify(message)) : console.log('Websock isn\'t open.');
 }
 
 // Socket Stuff
@@ -56,17 +55,12 @@ function connectToWebsocket() {
   };
 }
 
-function sendMessageToWebsocket(message) {
-  console.log('[sendMessageToWebsocket] Message is: ', message);
-  websocket ? websocket.send(JSON.stringify(message)) : console.log('Websock isn\'t open.');
-}
-
 function handleMessageFromWebsocket(event) {
   var message;
   try {
     message = JSON.parse(event.data);
 
-    console.log(message);
+    console.log('[handleMessageFromWebsocket] Message is: ', message);
 
     doWebsocketCommand(message);
 
@@ -82,6 +76,9 @@ function doWebsocketCommand(message) {
   switch(type) {
     case 'PLAY':
       video.play();
+      if (message['time'] !== undefined) {
+        video.currentTime = message['time'];
+      }
       break;
     case 'PAUSE':
       video.pause();
@@ -89,8 +86,9 @@ function doWebsocketCommand(message) {
         video.currentTime = message['time'];
       }
       break;
-    case 'SKIP':
-      video.currentTime = message['time'];
+    case 'USER_EXIT':
+    case 'USER_JOIN':
+      console.log('Party update, now there are: ', message['partySize']);
       break;
     default:
       console.log('AAAAA WTF IS HAPPENING!!! I DON\'T UNDERSTAND: ', type);
