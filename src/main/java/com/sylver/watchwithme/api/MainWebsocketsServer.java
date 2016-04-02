@@ -32,7 +32,7 @@ public class MainWebsocketsServer {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainWebsocketsServer.class);
   private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
-  private Set sessions;
+  private Set<Session> sessions;
 
   @OnOpen
   public void onOpenHandler(final Session session, EndpointConfig config) throws IOException {
@@ -47,15 +47,14 @@ public class MainWebsocketsServer {
     }
   }
 
-  // We can expect these to only be PLAY and PAUSE, so we will just pass it on.
   @OnMessage
   public void onMessageHandler(final Session mySession, final String message) {
     LOGGER.info("[onMessage] Handling session with id: {}", mySession.getId());
     LOGGER.info("[onMessage] Message is: {}", message);
     try {
       WwmEvent event = MAPPER.readValue(message, WwmEvent.class);
-      event.setPartySize(sessions.size());
       LOGGER.info("[onMessage] Incoming WwmEvent read as: {}", event);
+      event.setPartySize(sessions.size());
 
       sendEventToOthers(mySession, event);
 
@@ -83,12 +82,10 @@ public class MainWebsocketsServer {
 
     try {
       if (null != event.getType()) {
-        LOGGER.info("[sendEventToOthers] MySession is: ", mySession.getId());
 
-        for (Object userSession : sessions) {
+        for (Session userSession : sessions) {
           if (userSession != mySession) {
-            LOGGER.info("[sendEventToOthers] Sending to session: ", userSession);
-            ((Session)userSession).getAsyncRemote().sendText(MAPPER.writeValueAsString(event));
+            userSession.getAsyncRemote().sendText(MAPPER.writeValueAsString(event));
           }
         }
       }
