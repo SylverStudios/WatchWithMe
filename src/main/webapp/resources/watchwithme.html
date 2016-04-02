@@ -4,7 +4,10 @@
 	<meta charset="utf-8">
 	<title>WatchWithMe</title>
 
-	<link rel="stylesheet" href="css/watchwithme.css" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" >
+	<link rel="stylesheet" href="css/watchwithme.css" >
+
+	<script src="lib/jquery1.9.min.js"></script>
 
 </head>
 <body>
@@ -12,19 +15,18 @@
 <h3>Testing environment</h3>
 <video src="vid/samplevideo.mp4" controls></video>
 
-<div class="controls">
-	<div class="control play-button">Play</div>
-	<div class="control pause-button">Pause</div>
-	<div class="control seek-container">
-		<input class="seek-input" type="text">
-		<div class="seek-button">Seek</div>
+<div class="btn-toolbar controls" role="toolbar">
+
+	<div id="app-buttons" class="btn-group" role="group">
+
+		<button id="connect-btn" type="button" class="btn btn-success btn-sm">Connect</button>
+
 	</div>
-	<div class="control current-time">
-		Current time: <span class="current-time-value"></span>
-	</div>
-	<div class="control duration">
-		Duration: <span class="duration-value"></span>
-	</div>
+
 </div>
+
 </body>
+
+<script src="js/fake-client.js"></script>
+
 </html>
