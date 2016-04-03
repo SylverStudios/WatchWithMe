@@ -6,10 +6,11 @@ var util = require('gulp-util');
 var copy = require('gulp-copy');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
+var print = require('gulp-print');
 var webpack = require('webpack-stream');
 var generateWebpackConfig = require('./generateWebpackConfig.js');
 var eslint = require('gulp-eslint');
-var csslint = require('gulp-scss-lint');
+var scsslint = require('gulp-scss-lint');
 var serve = require('gulp-serve');
 var rimraf = require('rimraf');
 var fs = require('fs');
@@ -113,6 +114,20 @@ var taskFuncs = {
   'build-manifest': function() {
     return gulp.src(srcDir + '/manifest.json')
       .pipe(gulp.dest(buildDir));
+  },
+  'lint-js': function() {
+    console.log('here')
+    return gulp.src('src/**/*.js')
+      .pipe(eslint())
+      .pipe(eslint.format())
+      .pipe(eslint.failAfterError())
+      ;
+  },
+  'lint-scss': function() {
+    return gulp.src('src/**/*.scss')
+      .pipe(scsslint())
+      .pipe(scsslint.failReporter())
+    ;
   }
 };
 
@@ -135,3 +150,7 @@ gulp.task('build-manifest', ['setup-build'], taskFuncs['build-manifest']);
 
 gulp.task('build', ['setup-build', 'build-background-js', 'build-browseraction',
                     'build-contentscript-js', 'build-images', 'build-manifest']);
+
+gulp.task('lint-js', taskFuncs['lint-js']);
+gulp.task('lint-scss', taskFuncs['lint-scss']);
+gulp.task('lint', ['lint-js', 'lint-scss']);
