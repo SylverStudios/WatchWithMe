@@ -115,6 +115,27 @@ var taskFuncs = {
     return gulp.src(srcDir + '/manifest.json')
       .pipe(gulp.dest(buildDir));
   },
+  'watch-background-js': function() {
+    var config = backgroundWebpackConfig.getConfig(environment);
+    config.watch = true;
+    return doWebpack(config);
+  },
+  'watch-browseraction-js': function() {
+    var config = browserActionWebpackConfig.getConfig(environment);
+    config.watch = true;
+    return doWebpack(config);
+  },
+  'watch-browseraction-scss': function() {
+    return gulp.watch(
+      [srcDir + browserActionDir + '/browserAction.scss'],
+      ['build-browseraction-css']
+    );
+  },
+  'watch-contentscript-js': function() {
+    var config = contentScriptWebpackConfig.getConfig(environment);
+    config.watch = true;
+    return doWebpack(config);
+  },
   'lint-js': function() {
     console.log('here')
     return gulp.src('src/**/*.js')
@@ -150,6 +171,13 @@ gulp.task('build-manifest', ['setup-build'], taskFuncs['build-manifest']);
 
 gulp.task('build', ['setup-build', 'build-background-js', 'build-browseraction',
                     'build-contentscript-js', 'build-images', 'build-manifest']);
+
+gulp.task('watch-background-js', ['setup-build'], taskFuncs['watch-background-js']);
+gulp.task('watch-browseraction-js', ['setup-build'], taskFuncs['watch-browseraction-js']);
+gulp.task('watch-browseraction-scss', ['setup-build'], taskFuncs['watch-browseraction-scss']);
+gulp.task('watch-contentscript-js', ['setup-build'], taskFuncs['watch-contentscript-js']);
+gulp.task('watch', ['watch-background-js', 'watch-browseraction-js',
+  'watch-browseraction-scss', 'watch-contentscript-js']);
 
 gulp.task('lint-js', taskFuncs['lint-js']);
 gulp.task('lint-scss', taskFuncs['lint-scss']);

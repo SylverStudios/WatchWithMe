@@ -7,7 +7,7 @@ Content scripts:
 */
 
 import $ from 'jquery';
-import VideoControl from './videoControl';
+import VideoControl from './VideoControl';
 import funcLog from '../util/funcLog';
 
 let videoControl;
