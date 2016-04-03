@@ -8,25 +8,32 @@ Content scripts:
 
 import $ from 'jquery';
 
+function funcLog() {
+  const callingFuncName = new Error().stack.split('\n')[2].trim().split(' ')[1];
+  let logArgs = ['[' + callingFuncName + ']'];
+  logArgs = logArgs.concat(Array.prototype.slice.call(arguments));
+  console.log.apply(console, logArgs);
+}
+
 function sendMessageToBackgroundScript(message) {
-  console.log('[sendMessageToBackgroundScript] Sending message: ', message);
+  funcLog('Sending message:', message);
   chrome.runtime.sendMessage(message);
 }
 
 function handleVideoPlayEvent() {
-  console.log('[handleVideoPlayEvent]');
+  funcLog();
   sendMessageToBackgroundScript({ type: 'PLAY' });
 }
 
 function handleVideoPauseEvent(e) {
   const time = e.target.currentTime;
-  console.log('[handleVideoPauseEvent] Time is: ', time);
+  funcLog('Time is:', time);
   sendMessageToBackgroundScript({ type: 'PAUSE', time: time });
 }
 
 function handleVideoSeekEvent(e) {
   const time = e.target.currentTime;
-  console.log('[handleVideoSeekEvent] Time is: ', time);
+  funcLog('Time is:', time);
   sendMessageToBackgroundScript({ type: 'SEEK', time: time });
 }
 
@@ -46,9 +53,9 @@ const videoControl = {
     }
   },
 
-  selectNextVideoElement: function () {
+  selectNextVideoElement: function selectNextVideoElement() {
     if (!this.videoElements || this.videoElements.length < 2) {
-      console.log('No other elements to select.');
+      funcLog('No other elements to select.');
       return;
     }
     if (this.currentVideo >= this.videoElements.length) {
@@ -83,33 +90,33 @@ const videoControl = {
     $(removeFrom).removeClass('wwmVideo');
   },
 
-  addPlayListener: function () {
-    console.log('[addPlayListener]');
+  addPlayListener: function addPlayListener() {
+    funcLog();
     if (this.video) $(this.video).on('play', handleVideoPlayEvent);
   },
-  removePlayListener: function () {
-    console.log('[removePlayListener]');
+  removePlayListener: function removePlayListener() {
+    funcLog();
     if (this.video) $(this.video).off('play', handleVideoPlayEvent);
   },
-  addPauseListener: function () {
-    console.log('[addPauseListener]');
+  addPauseListener: function addPauseListener() {
+    funcLog();
     if (this.video) $(this.video).on('pause', handleVideoPauseEvent);
   },
-  removePauseListener: function () {
-    console.log('[removePauseListener]');
+  removePauseListener: function removePauseListener() {
+    funcLog();
     if (this.video) $(this.video).off('pause', handleVideoPauseEvent);
   },
-  addSeekListener: function () {
-    console.log('[addSeekListener]');
+  addSeekListener: function addSeekListener() {
+    funcLog();
     if (this.video) $(this.video).on('seeking', handleVideoSeekEvent);
   },
-  removeSeekListener: function () {
-    console.log('[removeSeekListener]');
+  removeSeekListener: function removeSeekListener() {
+    funcLog();
     if (this.video) $(this.video).off('seeking', handleVideoSeekEvent);
   },
 
-  addVideoListeners: function () {
-    console.log('[addVideoListeners]');
+  addVideoListeners: function addVideoListeners() {
+    funcLog();
     if (this.video) {
       this.addPlayListener();
       this.addPauseListener();
@@ -117,8 +124,8 @@ const videoControl = {
     }
   },
 
-  removeVideoListeners: function () {
-    console.log('[removeVideoListeners]');
+  removeVideoListeners: function removeVideoListeners() {
+    funcLog();
     if (this.video) {
       this.removePlayListener();
       this.removePauseListener();
@@ -126,8 +133,8 @@ const videoControl = {
     }
   },
 
-  play: function () {
-    console.log('[videoControl::play]');
+  play: function play() {
+    funcLog();
     const self = this;
     if (this.video) {
       this.removePlayListener();
@@ -138,8 +145,8 @@ const videoControl = {
     }
   },
 
-  pause: function () {
-    console.log('[videoControl::pause]');
+  pause: function pause() {
+    funcLog();
     const self = this;
     if (this.video) {
       this.removePauseListener();
@@ -150,8 +157,8 @@ const videoControl = {
     }
   },
 
-  skipTo: function (timeSeconds) {
-    console.log('[videoControl::skipTo] Time is: ', timeSeconds);
+  skipTo: function skipTo(timeSeconds) {
+    funcLog('Time is:', timeSeconds);
     const self = this;
     if (this.video) {
       this.removeSeekListener();
@@ -162,12 +169,6 @@ const videoControl = {
     }
   },
 };
-
-function logFunctionName(callee) {
-  let name = callee.substr('function '.length);
-  name = name.substr(0, name.indexOf('('));
-  console.log('[' + name + ']');
-}
 
 const popupOpen = function () {
   if (!videoControl.video) {
@@ -182,12 +183,12 @@ const popupClose = function () {
 };
 
 function setWwmClassStyle() {
-  logFunctionName(arguments.callee.toString());
+  funcLog();
   $("<style type='text/css'> .wwmVideo{ border: 2px solid #35D418; border-radius: 20px;} </style>").appendTo('head');
 }
 
 function handleMessageFromBackgroundScript(message) {
-  console.log('[handleMessageFromBackgroundScript] Message is: ', message);
+  funcLog('Message is: ', message);
   const { type, time } = message;
   switch (type) {
     case 'PLAY':
@@ -215,12 +216,12 @@ function handleMessageFromBackgroundScript(message) {
       videoControl.selectNextVideoElement();
       break;
     default:
-      console.log('[handleMessageFromBackgroundScript] Failed to interpret message type: ', type);
+      funcLog(handleMessageFromBackgroundScript, 'Failed to interpret message type: ', type);
   }
 }
 
-const init = function () {
-  console.log('[init]');
+function init() {
+  funcLog();
   chrome.runtime.connect();
   setWwmClassStyle();
   videoControl.init();
@@ -229,6 +230,6 @@ const init = function () {
     console.log('[contentScript init addListener callback] Sender is: ', sender);
     handleMessageFromBackgroundScript(message);
   });
-};
+}
 
 init();

@@ -49,8 +49,7 @@
     "func-names": 0, // previously a warning, shouldn't need to name all inline functions
     "default-case": 0, // previously an error, shouldn't always need a default switch case
     "react/sort-comp": 0, // previously an error, the sorting logic is hard to satisfy and of questionable value
-    "no-debugger": 2, // previously a warning, no debugger statements should get checked in ever
-    "no-caller": 0
+    "no-debugger": 2 // previously a warning, no debugger statements should get checked in ever
   },
 
   "extends": "airbnb"
