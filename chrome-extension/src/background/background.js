@@ -154,3 +154,10 @@ var init = function() {
 }
 
 init();
+
+module.exports = {
+  videoHistory,
+  isWebsocketOpen,
+  subscribeToWebsocketEvents,
+  handleMessageFromBrowserAction
+}

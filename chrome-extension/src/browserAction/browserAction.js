@@ -5,6 +5,8 @@ Browser Action:
 - Has access to the Background Page and its functions.
 */
 
+var $ = require('jquery');
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log("popup script is live.");
 
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var historyPageElement = $('#history-list');
     $(historyPageElement).empty();
 
-    for (i = history.length; i >= 0; i--) {
+    for (var i = history.length; i >= 0; i--) {
       history[i] ? $(historyPageElement).append('<li>'+history[i]+'</li>') : '';
     }
   }
