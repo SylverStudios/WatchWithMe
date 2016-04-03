@@ -4,8 +4,7 @@ import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sylver.watchwithme.model.ClientEvent;
-import com.sylver.watchwithme.model.Command;
+import com.sylver.watchwithme.model.WwmEvent;
 import io.dropwizard.jackson.Jackson;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 @Metered
@@ -32,7 +32,7 @@ public class MainWebsocketsServer {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainWebsocketsServer.class);
   private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
-  private Set sessions;
+  private Set<Session> sessions;
 
   @OnOpen
   public void onOpenHandler(final Session session, EndpointConfig config) throws IOException {
@@ -40,50 +40,58 @@ public class MainWebsocketsServer {
     this.sessions = (Set)config.getUserProperties().get("sessions");
     if (!sessions.contains(session)) {
       sessions.add(session);
+
+      WwmEvent joinEvent = new WwmEvent(WwmEvent.Type.USER_JOIN, null, null, sessions.size());
+      sendEventToOthers(session, joinEvent);
       LOGGER.info("[onOpen] Added to sessions set, new size: {}", sessions.size());
     }
   }
+
   @OnMessage
-  public void onMessageHandler(final Session session, final String message) {
-    LOGGER.info("[onMessage] Handling session with id: {}", session.getId());
+  public void onMessageHandler(final Session mySession, final String message) {
+    LOGGER.info("[onMessage] Handling session with id: {}", mySession.getId());
     LOGGER.info("[onMessage] Message is: {}", message);
     try {
-      ClientEvent clientEvent = MAPPER.readValue(message, ClientEvent.class);
-      LOGGER.info("[onMessage] ClientEvent read as: {}", clientEvent);
-      Command.Type commandType = null;
-      switch(clientEvent.getType()) {
-        case PLAY:
-          commandType = Command.Type.PLAY;
-          break;
-        case PAUSE:
-          commandType = Command.Type.PAUSE;
-          break;
-        case BUFFERING_START:
-          break;
-        case BUFFERING_COMPLETE:
-          break;
-        case SEEK:
-          break;
-      }
-      if (null != commandType) {
-        Command command = new Command(commandType, clientEvent.getTime());
-        for (Object someSession : sessions) {
-          if (someSession != session) {
-            ((Session)someSession).getAsyncRemote().sendText(MAPPER.writeValueAsString(command));
-          }
-        }
-      }
+      WwmEvent event = MAPPER.readValue(message, WwmEvent.class);
+      LOGGER.info("[onMessage] Incoming WwmEvent read as: {}", event);
+      event.setPartySize(sessions.size());
+
+      sendEventToOthers(mySession, event);
+
     } catch (IOException e) {
-      LOGGER.info("[onMessage] Exception while trying to map message to ClientEvent\n{}", e);
+      LOGGER.info("[onMessage] Exception while trying to map message to WwmEvent\n{}", e);
     }
   }
+
+
   @OnClose
-  public void myOnClose(final Session session, final CloseReason cr) {
+  public void onCloseHandler(final Session session, final CloseReason cr) {
     LOGGER.info("[onClose] Handling session with id: {}", session.getId());
     LOGGER.info("[onClose] Close reason: {}", cr.getReasonPhrase());
     if (sessions.contains(session)) {
       sessions.remove(session);
+
+      WwmEvent exitEvent = new WwmEvent(WwmEvent.Type.USER_EXIT, null, null, sessions.size());
+      sendEventToOthers(session, exitEvent);
       LOGGER.info("[onClose] Removing from sessions set, new size: {}", sessions.size());
+    }
+  }
+
+  private void sendEventToOthers(Session mySession, WwmEvent event) {
+    LOGGER.info("[sendEventToOthers] Outgoing WwmEvent looks like: {}", event);
+
+    try {
+      if (null != event.getType()) {
+
+        for (Session userSession : sessions) {
+          if (userSession != mySession) {
+            userSession.getAsyncRemote().sendText(MAPPER.writeValueAsString(event));
+          }
+        }
+      }
+
+    } catch (IOException e) {
+      LOGGER.info("[onMessage] Exception while trying to map message to WwmEvent\n{}", e);
     }
   }
 
