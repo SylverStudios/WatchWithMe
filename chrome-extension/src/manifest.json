@@ -23,13 +23,13 @@
   "content_scripts": [
     {
       "matches" : ["https://*/*","file:///*/*"],
-      "js": ["library/jquery1.9.min.js", "contentScript.js"]
+      "js": ["contentScript/contentScript.js"]
     }
   ],
 
 // Middle ware
   "background": {
-    "scripts": ["library/jquery1.9.min.js", "background.js"]
+    "scripts": ["background/background.js"]
   },
 
 // UI Page
@@ -38,7 +38,7 @@
       "38": "images/wwmLogo38.png"
     },
     "default_title": "Watch With Me",
-    "default_popup": "browserAction.html"
+    "default_popup": "browserAction/browserAction.html"
   },
 
 // adds key click functionality
