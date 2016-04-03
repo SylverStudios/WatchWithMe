@@ -24,7 +24,7 @@ var buildDir = './build';
 var backgroundDir = '/background';
 var browserActionDir = '/browserAction';
 var contentScriptDir = '/contentScript';
-var imagesDir = '/images'
+var imagesDir = '/images';
 
 var backgroundJsEntry = srcDir + backgroundDir + '/background.js';
 var browserActionJsEntry = srcDir + browserActionDir + '/browserAction.js';

@@ -1,5 +1,7 @@
-// var serverIp = '52.38.66.94';
-var serverIp = '127.0.0.1';
+import $ from 'jquery';
+
+var serverIp = '52.38.66.94';
+// var serverIp = '127.0.0.1';
 
 var websocket;
 var websocketOnOpenCallbacks = [];
