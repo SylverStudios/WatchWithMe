@@ -7,8 +7,10 @@ Content scripts:
 */
 
 import $ from 'jquery';
-import videoControl from './videoControl';
+import VideoControl from './videoControl';
 import funcLog from '../util/funcLog';
+
+let videoControl;
 
 function sendMessageToBackgroundScript(message) {
   funcLog('Sending message:', message);
@@ -34,7 +36,7 @@ function handleVideoSeekEvent(e) {
 
 const popupOpen = function () {
   if (!videoControl.video) {
-    videoControl.init();
+    videoControl.initVideo();
   }
 
   videoControl.addHighlight();
@@ -87,10 +89,10 @@ function init() {
   chrome.runtime.connect();
   setWwmClassStyle();
 
-  videoControl.onVideoPlay = handleVideoPlayEvent;
-  videoControl.onVideoPause = handleVideoPauseEvent;
-  videoControl.onVideoSeek = handleVideoSeekEvent;
-  videoControl.init();
+  videoControl = new VideoControl()
+    .setOnVideoPlay(handleVideoPlayEvent)
+    .setOnVideoPause(handleVideoPauseEvent)
+    .setOnVideoSeek(handleVideoSeekEvent);
 
   chrome.runtime.onMessage.addListener(function (message, sender) {
     console.log('[contentScript init addListener callback] Sender is: ', sender);
