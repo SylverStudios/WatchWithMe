@@ -3,10 +3,11 @@
 import _ from 'underscore';
 
 class RoomState {
-  constructor(isPlaying, wasPlaying, time, partySize, definedBy) {
+  constructor(isPlaying, wasPlaying, time, prevTime, partySize, definedBy) {
     this._isPlaying = isPlaying;
     this._wasPlaying = wasPlaying;
     this._time = time;
+    this._prevTime = prevTime;
     this._partySize = partySize;
     this._definedBy = definedBy;
   }
@@ -18,6 +19,9 @@ class RoomState {
   }
   get time() {
     return this._time;
+  }
+  get prevTime() {
+    return this._prevTime;
   }
   get partySize() {
     return this._partySize;
@@ -31,21 +35,23 @@ class RoomState {
       isPlaying: this._isPlaying,
       wasPlaying: this._wasPlaying,
       time: this._time,
+      prevTime: this._prevTime,
       partySize: this._partySize,
       definedBy: this._definedBy,
     };
   }
 
   static fromJSON(obj) {
-    const { isPlaying, wasPlaying, time, partySize, definedBy } = obj;
+    const { isPlaying, wasPlaying, time, prevTime, partySize, definedBy } = obj;
     if (
       _.isBoolean(isPlaying) &&
       _.isBoolean(wasPlaying) &&
       _.isNumber(time) &&
+      _.isNumber(prevTime) &&
       _.isNumber(partySize) &&
       _.isString(definedBy)
     ) {
-      return new RoomState(isPlaying, wasPlaying, time, partySize, definedBy);
+      return new RoomState(isPlaying, wasPlaying, time, prevTime, partySize, definedBy);
     }
   }
 }

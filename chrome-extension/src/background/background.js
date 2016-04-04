@@ -7,6 +7,7 @@ Background script:
 */
 
 import _ from 'underscore';
+import numeral from 'numeral';
 import ClientMessage from '../models/ClientMessage';
 import RoomState from '../models/RoomState';
 import VideoState from '../models/VideoState';
@@ -16,6 +17,8 @@ import { STATE_REQUEST_MESSAGE, CONNECT_COMMAND } from '../util/constants';
 // const serverIp = '52.38.66.94';
 const serverIp = '127.0.0.1';
 
+const TIME_SEEK_EPSILON = 0.1; // min time difference in room states to be considered a seek
+
 let myUsername;
 let websocket;
 const websocketOnOpenCallbacks = [];
@@ -23,21 +26,36 @@ const websocketOnCloseCallbacks = [];
 
 let tabId;
 
+function isASeek(num1, num2) {
+  return Math.abs(num1 - num2) > TIME_SEEK_EPSILON;
+}
+
 const videoHistory = {
   queue: [],
 
-  add: function (message) {
-    const type = message.type;
-    const user = message.user ? message.user : 'Foreign';
-    const time = message.time;
-
-    let log = user + ' : ' + type;
-    log += time ? ' to/at ' + Math.round(time) + ' seconds.' : '.';
-
-    this.queue.push(log);
+  add: function (roomState) {
+    const { isPlaying, wasPlaying, time, prevTime, definedBy } = roomState;
+    let historySegment;
+    // TODO numeral string to handle videos longer than an hour
+    const timeString = numeral(time).format('00:00');
+    const seeked = isASeek(time, prevTime);
+    if (isPlaying && !wasPlaying) {
+      if (seeked) {
+        historySegment = definedBy + ' played and seeked to ' + timeString;
+      } else {
+        historySegment = definedBy + ' played at ' + timeString;
+      }
+    } else if (!isPlaying && wasPlaying) {
+      historySegment = definedBy + ' paused at ' + timeString;
+    } else if (isPlaying === wasPlaying && seeked) {
+      historySegment = definedBy + ' seeked to ' + timeString;
+    }
+    if (historySegment) {
+      this.queue.push(historySegment);
+    }
 
     this.trim();
-    console.log('[videoHistory::add] Added history item: ', log);
+    console.log('[videoHistory::add] Added history item: ', historySegment);
   },
 
   trim: function () {
@@ -85,7 +103,7 @@ function handleMessageFromWebsocket(entireMessage) {
     const roomState = RoomState.fromJSON(JSON.parse(message));
     if (roomState instanceof RoomState) {
       sendMessageToContentScript(roomState);
-      videoHistory.add(message);
+      videoHistory.add(roomState);
     } else {
       console.log('[handleMessageFromWebsocket] Do not know how to handle message');
     }

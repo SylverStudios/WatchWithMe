@@ -35,7 +35,7 @@ public class MainWebsocketsServer {
   private static final String STATE_REQUEST_MESSAGE = "Request for video state.";
 
   private Set<Session> sessions;
-  private RoomState lastState = new RoomState(false, false, 0, 0, null);
+  private RoomState lastState = new RoomState(false, false, 0, 0, 0, null);
 
   @OnOpen
   public void onOpenHandler(final Session session, EndpointConfig config) throws IOException {
@@ -58,6 +58,7 @@ public class MainWebsocketsServer {
         clientMessage.isPlaying(),
         lastState.getIsPlaying(),
         clientMessage.getTime(),
+        lastState.getTime(),
         sessions.size(),
         clientMessage.getUsername()
       );

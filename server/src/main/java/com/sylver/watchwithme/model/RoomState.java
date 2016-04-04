@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Represents the state of a room of viewers
  */
@@ -16,6 +13,7 @@ public class RoomState {
   private final boolean isPlaying;
   private final boolean wasPlaying;
   private final double time;
+  private final double prevTime;
   private final int partySize;
   private final String definedBy; // user name
 
@@ -24,12 +22,14 @@ public class RoomState {
     @JsonProperty("isPlaying") final boolean isPlaying,
     @JsonProperty("wasPlaying") final boolean wasPlaying,
     @JsonProperty("time") final double time,
+    @JsonProperty("prevTime") final double prevTime,
     @JsonProperty("partySize") final int partySize,
     @JsonProperty("definedBy") final String definedBy
   ) {
     this.isPlaying = isPlaying;
     this.wasPlaying = wasPlaying;
     this.time = time;
+    this.prevTime = prevTime;
     this.partySize = partySize;
     this.definedBy = definedBy;
   }
@@ -44,6 +44,10 @@ public class RoomState {
 
   public double getTime() {
     return time;
+  }
+
+  public double getPrevTime() {
+    return prevTime;
   }
 
   public int getPartySize() {
@@ -62,13 +66,14 @@ public class RoomState {
     return isPlaying == roomState.isPlaying &&
       wasPlaying == roomState.wasPlaying &&
       Double.compare(roomState.time, time) == 0 &&
+      Double.compare(roomState.prevTime, prevTime) == 0 &&
       partySize == roomState.partySize &&
       Objects.equal(definedBy, roomState.definedBy);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(isPlaying, wasPlaying, time, partySize, definedBy);
+    return Objects.hashCode(isPlaying, wasPlaying, time, prevTime, partySize, definedBy);
   }
 
   @Override
@@ -77,6 +82,7 @@ public class RoomState {
       .add("isPlaying", isPlaying)
       .add("wasPlaying", wasPlaying)
       .add("time", time)
+      .add("prevTime", prevTime)
       .add("partySize", partySize)
       .add("definedBy", definedBy)
       .toString();
