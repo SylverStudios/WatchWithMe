@@ -6,7 +6,15 @@ Background script:
 - A middle man between the Browser Action and the Content Script.
 */
 
-const serverIp = '52.38.66.94';
+import _ from 'underscore';
+import ClientMessage from '../models/ClientMessage';
+import RoomState from '../models/RoomState';
+import VideoState from '../models/VideoState';
+
+import { STATE_REQUEST_MESSAGE, CONNECT_COMMAND } from '../util/constants';
+
+// const serverIp = '52.38.66.94';
+const serverIp = '127.0.0.1';
 
 let myUsername;
 let websocket;
@@ -68,15 +76,19 @@ function sendMessageToContentScript(message) {
   }
 }
 
-function handleMessageFromWebsocket(event) {
-  console.log('[handleMessageFromWebsocket] Event is: ', event);
-  let message;
-  try {
-    message = JSON.parse(event.data);
+function handleMessageFromWebsocket(entireMessage) {
+  const message = entireMessage.data;
+  console.log('[handleMessageFromWebsocket] Message is: ', message);
+  if (_.isString(message) && message === STATE_REQUEST_MESSAGE) {
     sendMessageToContentScript(message);
-    videoHistory.add(message);
-  } catch (exception) {
-    console.log('[handleMessageFromWebsocket] Cannot parse message, exception is: ', exception);
+  } else {
+    const roomState = RoomState.fromJSON(JSON.parse(message));
+    if (roomState instanceof RoomState) {
+      sendMessageToContentScript(roomState);
+      videoHistory.add(message);
+    } else {
+      console.log('[handleMessageFromWebsocket] Do not know how to handle message');
+    }
   }
 }
 
@@ -112,7 +124,7 @@ function connectTabToWebsocket() {
 
 function handleMessageFromBrowserAction(message) {
   console.log('[handleMessageFromBrowserAction] Message is: ', message);
-  if (message.type === 'CONNECT') {
+  if (message === CONNECT_COMMAND) {
     connectTabToWebsocket();
   } else {
     sendMessageToContentScript(message);
@@ -130,19 +142,11 @@ function sendMessageToWebsocket(message) {
 
 function handleMessageFromContentScript(message) {
   console.log('[handleMessageFromContentScript] Message is: ', message);
-  if (message.type) {
-    sendMessageToWebsocket(message);
-
-    message.user = myUsername;
-    videoHistory.add(message);
+  const videoState = VideoState.fromJSON(message);
+  if (videoState instanceof VideoState) {
+    sendMessageToWebsocket(new ClientMessage(videoState.isPlaying, videoState.time, myUsername));
   } else {
-    console.log('[contentScript] ', message);
-  }
-}
-
-function handleTabChange(activeInfoEvent) {
-  if (tabId && activeInfoEvent.tabId === tabId) {
-    sendMessageToContentScript({ type: 'TAB_HOME_ACTIVE' });
+    console.log('[handleMessageFromContentScript] Do not know how to handle message');
   }
 }
 
@@ -154,10 +158,6 @@ const init = function () {
   });
 
   chrome.runtime.onMessage.addListener(handleMessageFromContentScript);
-
-  chrome.tabs.onActivated.addListener(handleTabChange);
-
-  // Read other stuff out of browser storage?
 };
 
 init();
