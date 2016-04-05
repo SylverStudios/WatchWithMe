@@ -34,16 +34,15 @@ function subscribeToWebsocketEvents(onOpenCallback, onCloseCallback) {
 }
 
 function sendMessageToContentScript(message) {
-  console.log('[sendMessageToContentScript] Message is: ', message);
+  funcLog('Message is:', message);
   if (tabId) {
-    console.log('[sendMessageToContentScript] Sending message to home tab: ', tabId);
     chrome.tabs.sendMessage(tabId, message);
   } else {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (tabs[0]) {
         chrome.tabs.sendMessage(tabs[0].id, message);
       } else {
-        console.log('No active tab or set home tab.');
+        funcLog('No active tab or set home tab.');
       }
     });
   }
@@ -71,14 +70,13 @@ function onStateUpdate(roomState) {
 
 function setHomeTab() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    console.log('[connectTabToWebsocket] Setting home tab as: ', tabs[0].id);
-    console.log('[connectTabToWebsocket] Home tab url is: ', tabs[0].url);
+    funcLog('Setting home tab, id is', tabs[0].id, 'url is', tabs[0].url);
     tabId = tabs[0].id;
   });
 }
 
 function handleMessageFromBrowserAction(message) {
-  console.log('[handleMessageFromBrowserAction] Message is: ', message);
+  funcLog('Message is:', message);
   if (message === CONNECT_COMMAND) {
     setHomeTab();
     websocketClient.connect();
@@ -88,17 +86,17 @@ function handleMessageFromBrowserAction(message) {
 }
 
 function handleMessageFromContentScript(message) {
-  console.log('[handleMessageFromContentScript] Message is: ', message);
+  funcLog('Message is:', message);
   const videoState = VideoState.fromJSON(message);
   if (videoState instanceof VideoState) {
     websocketClient.send(new ClientMessage(videoState.isPlaying, videoState.time, myUsername));
   } else {
-    console.log('[handleMessageFromContentScript] Do not know how to handle message');
+    funcLog('Do not know how to handle message');
   }
 }
 
 const init = function () {
-  console.log('[init]');
+  funcLog();
   // Set myUsername
   chrome.identity.getProfileUserInfo(function (userInfo) {
     myUsername = userInfo.email.split('@')[0];

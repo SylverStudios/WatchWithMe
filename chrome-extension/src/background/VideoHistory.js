@@ -1,5 +1,7 @@
 import numeral from 'numeral';
 
+import funcLog from '../util/funcLog';
+
 const TIME_SEEK_EPSILON = 0.1; // min time difference in room states to be considered a seek
 
 class VideoHistory {
@@ -32,7 +34,7 @@ class VideoHistory {
     }
 
     this.trim();
-    console.log('[videoHistory::add] Added history item: ', historySegment);
+    funcLog('Added history item:', historySegment);
   }
 
   trim() {

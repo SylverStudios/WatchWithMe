@@ -74,7 +74,7 @@ function init() {
     .setOnVideoSeek(reportVideoStateToBackgroundScript);
 
   chrome.runtime.onMessage.addListener(function (message, sender) {
-    console.log('[contentScript init addListener callback] Sender is: ', sender);
+    funcLog('Sender is:', sender);
     handleMessageFromBackgroundScript(message);
   });
 }

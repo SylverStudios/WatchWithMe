@@ -12,7 +12,6 @@ class WebsocketClient {
     return this._websocket && this._websocket.readyState === this._websocket.OPEN;
   }
   onOpenHandler(self) {
-    funcLog('self._onOpenCallback: ', self._onOpenCallback);
     if (_.isFunction(self._onOpenCallback)) self._onOpenCallback();
   }
   onMessageHandler(self, websocketMessage) {
