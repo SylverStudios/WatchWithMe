@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import VideoState from '../models/VideoState';
 import funcLog from '../util/funcLog';
 
 class VideoControl {
@@ -140,6 +141,10 @@ class VideoControl {
       });
       this._video.currentTime = timeSeconds;
     }
+  }
+
+  getCurrentState() {
+    return new VideoState(!this._video.paused, this._video.currentTime);
   }
 }
 

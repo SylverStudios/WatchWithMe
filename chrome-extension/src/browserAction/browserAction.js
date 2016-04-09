@@ -6,14 +6,17 @@ Browser Action:
 */
 
 import $ from 'jquery';
+import funcLog from '../util/funcLog';
+
+import { POPUP_OPEN_EVENT, POPUP_CLOSE_EVENT, CONNECT_COMMAND, FIND_NEW_VIDEO_COMMAND, }
+  from '../util/constants';
 
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('popup script is live.');
-
+  funcLog('browserAction script is live');
   const background = chrome.extension.getBackgroundPage();
 
   function sendMessageToBackground(message) {
-    console.log('[sendMessageToBackground] Message is: ', message);
+    funcLog('Message is:', message);
     background.handleMessageFromBrowserAction(message);
   }
 
@@ -31,8 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const action = {
-    CONNECT: function () { sendMessageToBackground({ type: 'CONNECT' }); populateHistory(); },
-    FIND: function () { sendMessageToBackground({ type: 'FIND' }); populateHistory(); },
+    CONNECT: function () { sendMessageToBackground(CONNECT_COMMAND); populateHistory(); },
+    FIND: function () { sendMessageToBackground(FIND_NEW_VIDEO_COMMAND); populateHistory(); },
   };
 
   const bindButtons = function () {
@@ -47,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const addUnloadListener = function () {
     addEventListener('unload', function () {
-      sendMessageToBackground({ type: 'POPUP_CLOSE' });
+      sendMessageToBackground(POPUP_CLOSE_EVENT);
     }, true);
   };
 
@@ -59,7 +62,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     background.subscribeToWebsocketEvents(
       function onOpen() {
-        console.log('onopen');
         $('#connection-status').text('Connected');
       },
       function onClose() {
@@ -74,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
     populateGroup();
     addUnloadListener();
     listenToBackgroundWebsocket();
-    sendMessageToBackground({ type: 'POPUP_OPEN' });
+    sendMessageToBackground(POPUP_OPEN_EVENT);
   };
 
   init();
