@@ -4,8 +4,8 @@ import funcLog from '../util/funcLog';
 
 import { STATE_REQUEST_MESSAGE } from '../util/constants';
 
-// const serverIp = '52.38.66.94';
-const serverIp = '127.0.0.1';
+const serverIp = '52.38.66.94';
+// const serverIp = '127.0.0.1';
 
 class WebsocketClient {
   isConnected() {
