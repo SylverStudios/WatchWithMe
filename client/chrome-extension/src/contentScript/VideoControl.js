@@ -5,7 +5,8 @@ import $ from 'jquery';
 import funcLog from '../util/funcLog';
 import VideoState from '../models/VideoState';
 
-class SimpleVideoControl {
+class VideoControl {
+
   constructor(onVideoEventListener) {
     funcLog();
     this.setListener(onVideoEventListener);
@@ -16,7 +17,7 @@ class SimpleVideoControl {
     this._videoElements = $('video');
     this._video = this._videoElements[this._currentVideo];
     if (this._video) {
-      this.addListeners();
+      this.addListener();
     }
     this._currentVideo = 0;
   }
@@ -44,7 +45,7 @@ class SimpleVideoControl {
 
     if (this._video) {
       this.addHighlight();
-      this.addListeners();
+      this.addListener();
     }
   }
 
@@ -63,14 +64,14 @@ class SimpleVideoControl {
     return this;
   }
 
-  addListeners() {
+  addListener() {
     funcLog();
     if (this._video) {
       $(this._video).on('play pause seeking', this._listener);
     }
   }
 
-  removeListeners() {
+  removeListener() {
     funcLog();
     if (this._video) {
       $(this._video).off('play pause seeking', this._listener);
@@ -93,9 +94,6 @@ class SimpleVideoControl {
     }
   }
 
-  getCurrentState() {
-    return new VideoState(!this._video.paused, this._video.currentTime);
-  }
 }
 
-export default SimpleVideoControl;
+export default VideoControl;
