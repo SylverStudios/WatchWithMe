@@ -18,6 +18,10 @@ import { STATE_REQUEST_MESSAGE, POPUP_OPEN_EVENT, POPUP_CLOSE_EVENT, FIND_NEW_VI
 let videoControl;
 let lastState;
 
+function updateState(newState) {
+  lastState = newState
+}
+
 function significantStateChange(incomingState) {
   return !lastState ||
   incomingState.isPlaying !== lastState.isPlaying ||
@@ -25,10 +29,10 @@ function significantStateChange(incomingState) {
 }
 
 function handleVideoStateChange() {
-  const incomingState = videoControl.getCurrentState()
+  const incomingState = videoControl ? videoControl.getCurrentState() : "";
 
   if (incomingState instanceof VideoState && significantStateChange(incomingState)) {
-    lastState = incomingState;
+    updateState(incomingState);
     funcLog('State:', lastState);
     chrome.runtime.sendMessage(lastState);
   }
@@ -57,6 +61,8 @@ function handleMessageFromBackgroundScript(message) {
 
   if (roomState instanceof RoomState) {
     if (!significantStateChange(roomState)) return;
+
+    updateState(roomState)
 
     if (roomState.isPlaying) {
       videoControl.play(roomState.time);

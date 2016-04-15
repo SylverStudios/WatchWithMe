@@ -94,6 +94,10 @@ class VideoControl {
     }
   }
 
+  getCurrentState() {
+    return new VideoState(!this._video.paused, this._video.currentTime);
+  }
+
 }
 
 export default VideoControl;
