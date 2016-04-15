@@ -2,7 +2,7 @@ import numeral from 'numeral';
 
 import funcLog from '../util/funcLog';
 
-const TIME_SEEK_EPSILON = 0.1; // min time difference in room states to be considered a seek
+import TIME_SEEK_EPSILON from '../util/constants'
 
 class VideoHistory {
   constructor() {
