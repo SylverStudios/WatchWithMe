@@ -1,10 +1,14 @@
+/**
+ * Created by aaron on 4/13/16.
+ */
 import $ from 'jquery';
-import VideoState from '../models/VideoState';
 import funcLog from '../util/funcLog';
+import VideoState from '../models/VideoState';
 
-class VideoControl {
-  constructor() {
+class SimpleVideoControl {
+  constructor(onVideoEventListener) {
     funcLog();
+    this.setListener(onVideoEventListener);
     this.initVideo();
   }
 
@@ -12,7 +16,7 @@ class VideoControl {
     this._videoElements = $('video');
     this._video = this._videoElements[this._currentVideo];
     if (this._video) {
-      this.addVideoListeners();
+      this.addListeners();
     }
     this._currentVideo = 0;
   }
@@ -33,14 +37,14 @@ class VideoControl {
   setVideoElement(newSelectedVideo) {
     if (this._video) {
       this.removeHighlight();
-      this.removeVideoListeners();
+      this.removeListener();
     }
 
     this._video = newSelectedVideo;
 
     if (this._video) {
       this.addHighlight();
-      this.addVideoListeners();
+      this.addListeners();
     }
   }
 
@@ -54,92 +58,38 @@ class VideoControl {
     $(removeFrom).removeClass('wwmVideo');
   }
 
-  setOnVideoPlay(onVideoPlay) {
-    this._onVideoPlay = onVideoPlay;
-    return this;
-  }
-  setOnVideoPause(onVideoPause) {
-    this._onVideoPause = onVideoPause;
-    return this;
-  }
-  setOnVideoSeek(onVideoSeek) {
-    this._onVideoSeek = onVideoSeek;
+  setListener(listenerFunction) {
+    this._listener = listenerFunction;
     return this;
   }
 
-  addPlayListener() {
-    funcLog();
-    if (this._video) $(this._video).on('play', this._onVideoPlay);
-  }
-  removePlayListener() {
-    funcLog();
-    if (this._video) $(this._video).off('play', this._onVideoPlay);
-  }
-  addPauseListener() {
-    funcLog();
-    if (this._video) $(this._video).on('pause', this._onVideoPause);
-  }
-  removePauseListener() {
-    funcLog();
-    if (this._video) $(this._video).off('pause', this._onVideoPause);
-  }
-  addSeekListener() {
-    funcLog();
-    if (this._video) $(this._video).on('seeking', this._onVideoSeek);
-  }
-  removeSeekListener() {
-    funcLog();
-    if (this._video) $(this._video).off('seeking', this._onVideoSeek);
-  }
-
-  addVideoListeners() {
+  addListeners() {
     funcLog();
     if (this._video) {
-      this.addPlayListener();
-      this.addPauseListener();
-      this.addSeekListener();
+      $(this._video).on('play pause seeking', this._listener);
     }
   }
 
-  removeVideoListeners() {
+  removeListeners() {
     funcLog();
     if (this._video) {
-      this.removePlayListener();
-      this.removePauseListener();
-      this.removeSeekListener();
+      $(this._video).off('play pause seeking', this._listener);
     }
   }
 
-  play() {
+  play(time) {
     funcLog();
-    if (this._video) {
-      this.removePlayListener();
-      $(this._video).one('play', () => {
-        this.addPlayListener();
-      });
+    if (this._video && time) {
       this._video.play();
+      this._video.currentTime = time;
     }
   }
 
-  pause() {
+  pause(time) {
     funcLog();
-    if (this._video) {
-      this.removePauseListener();
-      $(this._video).one('pause', () => {
-        this.addPauseListener();
-      });
+    if (this._video && time) {
       this._video.pause();
-    }
-  }
-
-  skipTo(timeSeconds) {
-    funcLog('Time is:', timeSeconds);
-    if (this._video) {
-      this.removeSeekListener();
-      $(this._video).one('seeking', () => {
-        this.addSeekListener();
-      });
-      this._video.currentTime = timeSeconds;
+      this._video.currentTime = time;
     }
   }
 
@@ -148,4 +98,4 @@ class VideoControl {
   }
 }
 
-export default VideoControl;
+export default SimpleVideoControl;
