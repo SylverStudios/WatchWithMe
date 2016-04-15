@@ -2,7 +2,7 @@ import numeral from 'numeral';
 
 import funcLog from '../util/funcLog';
 
-import TIME_SEEK_EPSILON from '../util/constants'
+import TIME_SEEK_EPSILON from '../util/constants';
 
 class VideoHistory {
   constructor() {

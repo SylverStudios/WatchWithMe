@@ -19,7 +19,7 @@ let videoControl;
 let lastState;
 
 function updateState(newState) {
-  lastState = newState
+  lastState = newState;
 }
 
 function significantStateChange(incomingState) {
@@ -29,7 +29,7 @@ function significantStateChange(incomingState) {
 }
 
 function handleVideoStateChange() {
-  const incomingState = videoControl ? videoControl.getCurrentState() : "";
+  const incomingState = videoControl ? videoControl.getCurrentState() : '';
 
   if (incomingState instanceof VideoState && significantStateChange(incomingState)) {
     updateState(incomingState);
@@ -62,7 +62,7 @@ function handleMessageFromBackgroundScript(message) {
   if (roomState instanceof RoomState) {
     if (!significantStateChange(roomState)) return;
 
-    updateState(roomState)
+    updateState(roomState);
 
     if (roomState.isPlaying) {
       videoControl.play(roomState.time);
