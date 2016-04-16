@@ -81,8 +81,8 @@ class VideoControl {
   play(time) {
     funcLog();
     if (this._video && time) {
-      this._video.play();
       this._video.currentTime = time;
+      this._video.play();
     }
   }
 

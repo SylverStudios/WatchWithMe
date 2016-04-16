@@ -12,29 +12,17 @@ import RoomState from '../models/RoomState';
 import VideoState from '../models/VideoState';
 import funcLog from '../util/funcLog';
 
-import { STATE_REQUEST_MESSAGE, POPUP_OPEN_EVENT, POPUP_CLOSE_EVENT, FIND_NEW_VIDEO_COMMAND, TIME_SEEK_EPSILON, }
+import { STATE_REQUEST_MESSAGE, POPUP_OPEN_EVENT, POPUP_CLOSE_EVENT, FIND_NEW_VIDEO_COMMAND, }
   from '../util/constants';
 
 let videoControl;
-let lastState;
-
-function updateState(newState) {
-  lastState = newState;
-}
-
-function significantStateChange(incomingState) {
-  return !lastState ||
-  incomingState.isPlaying !== lastState.isPlaying ||
-  Math.abs(incomingState.time - lastState.time) > TIME_SEEK_EPSILON;
-}
 
 function handleVideoStateChange() {
   const incomingState = videoControl ? videoControl.getCurrentState() : '';
 
-  if (incomingState instanceof VideoState && significantStateChange(incomingState)) {
-    updateState(incomingState);
-    funcLog('State:', lastState);
-    chrome.runtime.sendMessage(lastState);
+  if (incomingState instanceof VideoState) {
+    funcLog('State:', incomingState);
+    chrome.runtime.sendMessage(incomingState);
   }
 }
 
@@ -60,10 +48,6 @@ function handleMessageFromBackgroundScript(message) {
   funcLog('Info from background script:', roomState);
 
   if (roomState instanceof RoomState) {
-    if (!significantStateChange(roomState)) return;
-
-    updateState(roomState);
-
     if (roomState.isPlaying) {
       videoControl.play(roomState.time);
     } else {
