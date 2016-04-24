@@ -1,11 +1,13 @@
 language: java
 
-script:
-  - ./gradlew jar
-
 addons:
-  artifacts: true
+  artifacts:
+    bucket: $ARTIFACTS_BUCKET
     paths:
         - $(ls server/build/libs | tr "\n" ":")
+    key: $ARTIFACTS_KEY
+    secret: $ARTIFACTS_SECRET
 
+script:
+  - ./gradlew jar
 
