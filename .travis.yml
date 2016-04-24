@@ -1,0 +1,9 @@
+language: java
+
+script:
+  - ./gradlew jar
+
+addons:
+  artifacts: true
+    paths:
+        - $(ls server/build/libs | tr "\n" ":")

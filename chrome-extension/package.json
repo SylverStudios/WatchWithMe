@@ -1,7 +1,7 @@
 {
   "name": "watch-with-me-chrome-extension",
   "version": "0.1.0",
-  "description": "The personal website of Sam Roberts.",
+  "description": "A chrome extension that allows users to sync watching online content with friends.",
   "private": true,
   "repository": {
     "type": "git",
