@@ -6,7 +6,7 @@ addons:
   artifacts:
     bucket: $ARTIFACTS_BUCKET
     paths:
-        - ./server/build/libs
+        - ./server/build/libs/*
     key: $ARTIFACTS_KEY
     secret: $ARTIFACTS_SECRET
 
