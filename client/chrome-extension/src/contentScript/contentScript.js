@@ -9,18 +9,21 @@ Content scripts:
 import $ from 'jquery';
 import VideoControl from './VideoControl';
 import RoomState from '../models/RoomState';
+import VideoState from '../models/VideoState';
 import funcLog from '../util/funcLog';
 
 import { STATE_REQUEST_MESSAGE, POPUP_OPEN_EVENT, POPUP_CLOSE_EVENT, FIND_NEW_VIDEO_COMMAND, }
   from '../util/constants';
 
-
 let videoControl;
 
-function reportVideoStateToBackgroundScript() {
-  const videoState = videoControl.getCurrentState();
-  funcLog('State:', videoState);
-  chrome.runtime.sendMessage(videoState);
+function handleVideoStateChange() {
+  const incomingState = videoControl ? videoControl.getCurrentState() : '';
+
+  if (incomingState instanceof VideoState) {
+    funcLog('State:', incomingState);
+    chrome.runtime.sendMessage(incomingState);
+  }
 }
 
 const popupOpen = function () {
@@ -41,25 +44,38 @@ function setWwmClassStyle() {
 }
 
 function handleMessageFromBackgroundScript(message) {
-  funcLog('Message is: ', message);
   const roomState = RoomState.fromJSON(message);
-  if (message === STATE_REQUEST_MESSAGE) {
-    reportVideoStateToBackgroundScript(videoControl.getCurrentState());
-  } else if (message === POPUP_OPEN_EVENT) {
-    popupOpen();
-  } else if (message === POPUP_CLOSE_EVENT) {
-    popupClose();
-  } else if (message === FIND_NEW_VIDEO_COMMAND) {
-    videoControl.selectNextVideoElement();
-  } else if (roomState instanceof RoomState) {
+  funcLog('Info from background script:', roomState);
+
+  if (roomState instanceof RoomState) {
     if (roomState.isPlaying) {
-      videoControl.play();
+      videoControl.play(roomState.time);
     } else {
-      videoControl.pause();
+      videoControl.pause(roomState.time);
     }
-    videoControl.skipTo(roomState.time);
-  } else {
-    funcLog('Failed to interpret message');
+    return;
+  }
+
+  switch (message) {
+
+    case STATE_REQUEST_MESSAGE:
+      chrome.runtime.sendMessage(videoControl.getCurrentState());
+      break;
+
+    case POPUP_OPEN_EVENT:
+      popupOpen();
+      break;
+
+    case POPUP_CLOSE_EVENT:
+      popupClose();
+      break;
+
+    case FIND_NEW_VIDEO_COMMAND:
+      videoControl.selectNextVideoElement();
+      break;
+
+    default:
+      funcLog('Failed to interpret message', message);
   }
 }
 
@@ -68,13 +84,9 @@ function init() {
   chrome.runtime.connect();
   setWwmClassStyle();
 
-  videoControl = new VideoControl()
-    .setOnVideoPlay(reportVideoStateToBackgroundScript)
-    .setOnVideoPause(reportVideoStateToBackgroundScript)
-    .setOnVideoSeek(reportVideoStateToBackgroundScript);
+  videoControl = new VideoControl(handleVideoStateChange);
 
-  chrome.runtime.onMessage.addListener(function (message, sender) {
-    funcLog('Sender is:', sender);
+  chrome.runtime.onMessage.addListener(function (message) {
     handleMessageFromBackgroundScript(message);
   });
 }

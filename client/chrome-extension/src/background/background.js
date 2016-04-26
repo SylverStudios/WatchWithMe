@@ -12,17 +12,25 @@ import VideoHistory from './VideoHistory';
 import WebsocketClient from './WebsocketClient';
 import ClientMessage from '../models/ClientMessage';
 import VideoState from '../models/VideoState';
+import RoomState from '../models/RoomState';
 
-import { STATE_REQUEST_MESSAGE, CONNECT_COMMAND } from '../util/constants';
+import { STATE_REQUEST_MESSAGE, CONNECT_COMMAND, TIME_SEEK_EPSILON } from '../util/constants';
 
 let myUsername;
 let websocketClient;
+let lastState;
 const websocketOnOpenCallbacks = [];
 const websocketOnCloseCallbacks = [];
 
 let tabId;
 
 const videoHistory = new VideoHistory();
+
+function significantStateChange(incomingState) {
+  return !lastState ||
+      incomingState.isPlaying !== lastState.isPlaying ||
+      Math.abs(incomingState.time - lastState.time) > TIME_SEEK_EPSILON;
+}
 
 function subscribeToWebsocketEvents(onOpenCallback, onCloseCallback) {
   if (websocketOnOpenCallbacks.indexOf(onOpenCallback) === -1) {
@@ -63,7 +71,10 @@ function onWebsocketClose() {
 function onStateRequest() {
   sendMessageToContentScript(STATE_REQUEST_MESSAGE);
 }
+
 function onStateUpdate(roomState) {
+  lastState = RoomState.fromJSON(roomState);
+
   sendMessageToContentScript(roomState);
   videoHistory.add(roomState);
 }
@@ -88,10 +99,10 @@ function handleMessageFromBrowserAction(message) {
 function handleMessageFromContentScript(message) {
   funcLog('Message is:', message);
   const videoState = VideoState.fromJSON(message);
-  if (videoState instanceof VideoState) {
+  if (videoState instanceof VideoState && significantStateChange(videoState)) {
     websocketClient.send(new ClientMessage(videoState.isPlaying, videoState.time, myUsername));
   } else {
-    funcLog('Do not know how to handle message');
+    funcLog('Not a significant state change, not sending it to server.');
   }
 }
 
