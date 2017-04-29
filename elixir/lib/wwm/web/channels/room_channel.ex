@@ -41,9 +41,7 @@ defmodule Wwm.Web.RoomChannel do
   end
 
   def handle_info(:after_join, socket) do
-    b_return = broadcast! socket, "user_joined", Events.joined(socket.assigns.username)
-    IO.puts "here is the return from broadcast"
-    IO.inspect b_return
+    broadcast! socket, "user_joined", Events.joined(socket.assigns.username)
     {:noreply, socket}
   end
 
@@ -112,7 +110,7 @@ defmodule Wwm.Web.RoomChannel do
 
   # Private convenience methods
   defp broadcast_and_return(video_state, socket) do
-    broadcast! socket, "state_change", videoEvent
+    broadcast! socket, "state_change", video_state
     video_state
   end
 
