@@ -1,4 +1,4 @@
-defmodule Store.Cache do
+defmodule Store do
   use GenServer
 
 # Create an ETS table named :store_cache_table with 1000 entries max

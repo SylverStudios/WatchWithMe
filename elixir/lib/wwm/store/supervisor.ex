@@ -7,7 +7,7 @@ defmodule Store.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Store.Cache, [[name: Store.Cache]])
+      worker(Store, [[name: Store]])
     ]
 
     supervise(children, strategy: :one_for_one)
