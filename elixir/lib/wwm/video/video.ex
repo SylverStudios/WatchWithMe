@@ -25,17 +25,17 @@ defmodule Wwm.Video do
     |> struct([is_playing: false, time: v_time, last_action: action])
   end
 
-# action with string keys
-  def reduce(video_state, %{"type" => type, "video_time" => v_time, "world_time" => w_time}, initiator) do
-    reduce(video_state, create_action(type, v_time, w_time, initiator))
-  end
-
 # Catch all
   def reduce(video_state, action) do
     Logger.info fn ->
       "The action didn't match any of the expected cases: #{action}'"
     end
     video_state
+  end
+
+# action with string keys
+  def reduce(video_state, %{"type" => type, "video_time" => v_time, "world_time" => w_time}, initiator) do
+    reduce(video_state, create_action(type, v_time, w_time, initiator))
   end
 
   @spec get_default_state() :: video_state

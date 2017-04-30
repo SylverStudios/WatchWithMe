@@ -2,7 +2,6 @@ defmodule Wwm.Web.RoomChannelTest do
   use Wwm.Web.ChannelCase
   # alias Wwm.Web.RoomChannel
   alias Wwm.Web.UserSocket
-  alias Wwm.Video
 
   @topic "room:lobby"
   @username "Shamshirz"
