@@ -1,4 +1,4 @@
-defmodule Store.Supervisor do
+defmodule Wwm.Store.Supervisor do
   use Supervisor
 
   def start_link do
@@ -7,7 +7,7 @@ defmodule Store.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Store, [[name: Store]])
+      worker(Wwm.Store, [[name: Wwm.Store]])
     ]
 
     supervise(children, strategy: :one_for_one)

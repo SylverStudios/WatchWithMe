@@ -1,4 +1,4 @@
-defmodule Store do
+defmodule Wwm.Store do
   use GenServer
 
 # Create an ETS table named :store_cache_table with 1000 entries max
@@ -9,25 +9,24 @@ defmodule Store do
     ], opts)
   end
 
-# public method -> get value or create default by room_id
-  def fetch(room_id, default_value_function) do
+# public method -> get value or set default by room_id
+  def fetch(room_id, default_value) do
     case get(room_id) do
-      {:not_found} -> set(room_id, default_value_function.())
+      {:not_found} -> set(room_id, default_value)
       {:found, result} -> result
     end
+  end
+
+  def set(room_id, value) do
+    GenServer.call(__MODULE__, {:set, room_id, value})
   end
 
 # Private get
   defp get(room_id) do
     case GenServer.call(__MODULE__, {:get, room_id}) do
-      [] -> {:not_found}
-      [{_room_id, result}] -> {:found, result}
+      []                    -> {:not_found}
+      [{_room_id, result}]  -> {:found, result}
     end
-  end
-
-# Private set
-  defp set(room_id, value) do
-    GenServer.call(__MODULE__, {:set, room_id, value})
   end
 
   # GenServer callbacks

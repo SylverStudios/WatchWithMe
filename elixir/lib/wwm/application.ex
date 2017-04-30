@@ -15,7 +15,7 @@ defmodule Wwm.Application do
       # Start your own worker by calling: Wwm.Worker.start_link(arg1, arg2, arg3)
       # worker(Wwm.Worker, [arg1, arg2, arg3]),
 
-      supervisor(Store.Supervisor, []),
+      supervisor(Wwm.Store.Supervisor, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
