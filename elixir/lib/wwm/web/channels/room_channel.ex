@@ -2,7 +2,10 @@ defmodule Wwm.Web.RoomChannel do
   use Phoenix.Channel
   require Logger
   alias Wwm.Events.Events
+  alias Wwm.Store
+  alias Wwm.Video
   
+  @default_state Video.get_default_state()
 
   @moduledoc """
   As far as I can tell, each socket that connects to this channel (room:*)
@@ -54,11 +57,11 @@ defmodule Wwm.Web.RoomChannel do
     {:reply, {:ok, message_event}, socket}
   end
 
-  def handle_in("action", %{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
-    video_event = Events.new_video_event(type, v_time, w_time, socket.assigns.username)
-    broadcast! socket, "action", video_event
-    {:reply, {:ok, video_event}, socket}
-  end
+  # def handle_in("action", %{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
+  #   video_event = Events.new_video_event(type, v_time, w_time, socket.assigns.username)
+  #   broadcast! socket, "action", video_event
+  #   {:reply, {:ok, video_event}, socket}
+  # end
 
   def handle_in("heartbeat", %{"video_time" => v_time, "world_time" => w_time}, socket) do
     Logger.debug fn ->
@@ -67,14 +70,14 @@ defmodule Wwm.Web.RoomChannel do
     {:reply, :ok, socket}
   end
 
-  # def handle_in(event, %{"action" => action, "video_time" => v_time, "world_time" => w_time}, socket) do
-  #   socket
-  #   |> get_room_state
-  #   |> VideoState.reduce(action)
-  #   |> broadcast_and_return(socket)
-  #   |> store_state
-  #   |> reply(socket)
-  # end
+  def handle_in("action", action, socket) do
+    socket
+    |> get_video_state
+    |> Video.reduce(action, socket.assigns.username)
+    |> broadcast_and_return(socket)
+    |> set_video_state(socket)
+    |> simple_reply(socket)
+  end
 
   @doc """
   This runs for each socket that is about to output a user_joined message
@@ -115,4 +118,17 @@ defmodule Wwm.Web.RoomChannel do
     video_state
   end
 
+  defp get_video_state(socket) do
+    socket.topic
+    |> Store.fetch(@default_state)
+  end
+
+  defp set_video_state(state, socket) do
+    socket.topic
+    |> Store.set(state)
+  end
+
+  defp simple_reply(result, socket) do
+    {:reply, {:ok, result}, socket}
+  end
 end

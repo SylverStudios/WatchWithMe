@@ -29,6 +29,7 @@ defmodule Wwm.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [{:credo, "~> 0.7", only: [:dev, :test]},
+     {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
      {:phoenix, "~> 1.3.0-rc"},
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.2"},

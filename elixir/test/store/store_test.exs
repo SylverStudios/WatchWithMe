@@ -1,10 +1,9 @@
 defmodule StoreTest do
   use ExUnit.Case
-  alias Wwm.VideoState
   alias Wwm.Store
 
   test "fetch will set default value if not found" do
-    default = default_video_state();
+    default = default_value();
 
     value_at_1 = Store.fetch(1, default)
 
@@ -12,19 +11,19 @@ defmodule StoreTest do
   end
 
   test "fetch will return value stored" do
-    video_state = custom_video_state(true, 120, nil)
+    custom = custom_value(true, 120)
 
-    Store.set(5, video_state)
+    Store.set(5, custom)
 
-    assert video_state == Store.fetch(5, default_video_state())
+    assert custom == Store.fetch(5, default_value())
   end
 
 # Private
-  defp default_video_state() do
-    %VideoState{is_playing: true, time: 100, last_action: nil}
+  defp default_value() do
+    %{atom_key: true, "string_key": 100}
   end
 
-  defp custom_video_state(playing, time, last_action) do
-    %VideoState{is_playing: playing, time: time, last_action: last_action}
+  defp custom_value(atom_key_value, string_key_value) do
+    %{atom_key: atom_key_value, "string_key": string_key_value}
   end
 end
