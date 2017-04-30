@@ -49,19 +49,21 @@ defmodule Wwm.Web.RoomChannel do
 # 
 # handle_in take the event type, the message, and the socket
   def handle_in("new_msg", %{"body" => body}, socket) do
-    messageEvent = Events.message(socket.assigns.username, body)
-    broadcast! socket, "new_msg", messageEvent
-    {:reply, {:ok, messageEvent}, socket}
+    message_event = Events.message(socket.assigns.username, body)
+    broadcast! socket, "new_msg", message_event
+    {:reply, {:ok, message_event}, socket}
   end
 
-  def handle_in("action",%{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
-    videoEvent = Events.new_video_event(type, v_time, w_time, socket.assigns.username)
-    broadcast! socket, "action", videoEvent
-    {:reply, {:ok, videoEvent}, socket}
+  def handle_in("action", %{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
+    video_event = Events.new_video_event(type, v_time, w_time, socket.assigns.username)
+    broadcast! socket, "action", video_event
+    {:reply, {:ok, video_event}, socket}
   end
 
   def handle_in("heartbeat", %{"video_time" => v_time, "world_time" => w_time}, socket) do
-    Logger.debug "Good to know #{socket.assigns.username}'s video is at #{v_time}, as of #{w_time}"
+    Logger.debug fn ->
+      "Good to know #{socket.assigns.username}'s video is at #{v_time}, as of #{w_time}"
+    end
     {:reply, :ok, socket}
   end
 
@@ -99,7 +101,6 @@ defmodule Wwm.Web.RoomChannel do
   end
 
   def handle_out("new_msg", payload, socket) do
-    IO.inspect payload
     if socket.assigns.username === payload.sender do
       {:noreply, socket}
     else

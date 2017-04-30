@@ -1,6 +1,14 @@
 defmodule Wwm.Store do
   use GenServer
 
+  @moduledoc """
+  Standard ETS table supervised genserver for 
+  storing Key:Value pairs
+
+  Exposes a fetch(key, default_value)
+  and set(key, value)
+  """
+
 # Create an ETS table named :store_cache_table with 1000 entries max
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [
