@@ -15,14 +15,12 @@ defmodule Wwm.Video do
   @spec reduce(video_state, action) :: video_state
 # Play case
   def reduce(video_state, %Action{type: "PLAY", video_time: v_time} = action) do
-    video_state
-    |> struct([is_playing: true, time: v_time, last_action: action])
+    struct(video_state, [is_playing: true, time: v_time, last_action: action])
   end
 
 # Pause case
   def reduce(video_state, %Action{type: "PAUSE", video_time: v_time} = action) do
-    video_state
-    |> struct([is_playing: false, time: v_time, last_action: action])
+    struct(video_state, [is_playing: false, time: v_time, last_action: action])
   end
 
 # Catch all
