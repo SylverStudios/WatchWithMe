@@ -4,7 +4,8 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --watch-stdin --progress --color",
-    "deploy": "webpack -p"
+    "deploy": "webpack -p",
+    "build:ext": "webpack --config webpack.config.chrome.js"
   },
   "dependencies": {
     "phoenix": "file:../deps/phoenix",
