@@ -40,7 +40,7 @@ class VideoWrapper {
     const listener = this.listeners["play"];
 
     this.video.removeEventListener("play", listener);
-    this.video.currentTime = time;
+    (time) ? this.video.currentTime = time : console.debug("didn't send time, must be local");
     this.video.play().then(() => {
       this.video.addEventListener("play", listener);
     });
@@ -59,7 +59,7 @@ class VideoWrapper {
 
     this.video.removeEventListener("pause", listener);
     this.video.pause();
-    this.video.currentTime = time;
+    (time) ? this.video.currentTime = time : console.debug("didn't send time, must be local");
     const ignoreNext = (event) => {
       this.video.addEventListener("pause", listener, false);
     }

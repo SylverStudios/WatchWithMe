@@ -35,12 +35,16 @@ chatInput.addEventListener("keypress", event => {
  * Annoyingly unbind the listener
  * change the video state
  * then rebind the listener
+ * 
+ * For local stuff, don't send the time.
+ * If you send time and it's a local video it just goes to 0 because
+ * the server can't handle requests with partial headers
  */
 const updateVideoState = (state) => {
   if (state.is_playing) {
-    video.play(state.time);
+    video.play();
   } else {
-    video.pause(state.time);
+    video.pause();
     return
   }
 }
