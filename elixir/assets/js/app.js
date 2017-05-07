@@ -1,9 +1,9 @@
 import "phoenix_html"
 
 // import socket from "./socket"
-import channel from './simpleTools/socketConnect';
-import video from './simpleTools/videoConnect';
-import actions from './simpleTools/actions';
+import channel from '../src/simpleTools/socketConnect';
+import video from '../src/simpleTools/videoConnect';
+import actions from '../src/simpleTools/actions';
 
 
 // Thought
