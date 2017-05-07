@@ -1,12 +1,8 @@
-defmodule Wwm.Events.Events do
-    alias Wwm.Events.VideoEvent
-
-	def new_video_event(type, video_time, world_time, username) do
-		%VideoEvent{type: type,
-			video_time: video_time,
-			world_time: world_time,
-			initiator: username}
-	end
+defmodule Wwm.Video.Messages do
+	@moduledoc """
+	This is only temporary, going to transition this
+	into an action that can be reduced
+	"""
 
 	def message(username, content) do
 		%{sender: username, body: createBody(username, content)}

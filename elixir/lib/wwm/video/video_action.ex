@@ -1,4 +1,4 @@
-defmodule Wwm.Events.VideoEvent do
+defmodule Wwm.Video.Action do
   @moduledoc """
   Provides a struct describing the change in video state
   """

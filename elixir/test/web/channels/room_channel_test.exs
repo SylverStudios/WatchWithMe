@@ -2,7 +2,6 @@ defmodule Wwm.Web.RoomChannelTest do
   use Wwm.Web.ChannelCase
   # alias Wwm.Web.RoomChannel
   alias Wwm.Web.UserSocket
-  alias Wwm.Events.Events
 
   @topic "room:lobby"
   @username "Shamshirz"
@@ -34,14 +33,13 @@ defmodule Wwm.Web.RoomChannelTest do
     assert_push "user_joined", ^message
   end
 
-  test "Event:action - videoEvents broadcast to everyone", %{socket: socket} do
+  test "Event:action - state is broadcast to everyone after an action", %{socket: socket} do
     incoming_event = new_incoming_play()
-    expected_event = new_play_event(socket.assigns.username)
 
     ref = push socket, "action", incoming_event
     
-    assert_broadcast "action", ^expected_event
-    assert_reply ref, :ok, ^expected_event
+    assert_broadcast "state_change", %{is_playing: true}
+    assert_reply ref, :ok, %{is_playing: true}
   end
 
   test "Event:heartbeat - server accepts heartbeat messages", %{socket: socket} do
@@ -69,10 +67,6 @@ defmodule Wwm.Web.RoomChannelTest do
 
   defp video_time() do
     14
-  end
-
-  defp new_play_event(username) do
-    Events.new_video_event("PLAY",video_time(),get_time(),username)
   end
 
   defp new_incoming_play() do

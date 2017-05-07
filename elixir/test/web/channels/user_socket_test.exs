@@ -4,7 +4,7 @@ defmodule Wwm.Web.UserSocketTest do
 
   @lobby "room:lobby"
 
-  test "new socket connections without a username default to anonymous" do
+  test "Join: new socket connections without a username default to anonymous" do
       params = %{}
 
       socket = createUserSocket(params, @lobby)
@@ -12,7 +12,7 @@ defmodule Wwm.Web.UserSocketTest do
       assert socket.assigns.username == "anonymous"
   end
 
-  test "new socket connections can send a username param and it's mapped to assigns" do
+  test "Join: new socket connections can send a username param and it's mapped to assigns" do
       params = %{"username" => "shamshirz"}
       
       socket = createUserSocket(params, @lobby)

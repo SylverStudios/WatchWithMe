@@ -1,8 +1,11 @@
 defmodule Wwm.Web.RoomChannel do
   use Phoenix.Channel
   require Logger
-  alias Wwm.Events.Events
+  alias Wwm.Video.Messages
+  alias Wwm.Store
+  alias Wwm.Video
   
+  @default_state Video.get_default_state()
 
   @moduledoc """
   As far as I can tell, each socket that connects to this channel (room:*)
@@ -41,40 +44,34 @@ defmodule Wwm.Web.RoomChannel do
   end
 
   def handle_info(:after_join, socket) do
-    b_return = broadcast! socket, "user_joined", Events.joined(socket.assigns.username)
-    IO.puts "here is the return from broadcast"
-    IO.inspect b_return
+    broadcast! socket, "user_joined", Messages.joined(socket.assigns.username)
     {:noreply, socket}
   end
 
-# How do we handle incoming messages!!
-# 
+# HANDLE IN
+
 # handle_in take the event type, the message, and the socket
   def handle_in("new_msg", %{"body" => body}, socket) do
-    messageEvent = Events.message(socket.assigns.username, body)
-    broadcast! socket, "new_msg", messageEvent
-    {:reply, {:ok, messageEvent}, socket}
-  end
-
-  def handle_in("action",%{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
-    videoEvent = Events.new_video_event(type, v_time, w_time, socket.assigns.username)
-    broadcast! socket, "action", videoEvent
-    {:reply, {:ok, videoEvent}, socket}
+    message_event = Messages.message(socket.assigns.username, body)
+    broadcast! socket, "new_msg", message_event
+    {:reply, {:ok, message_event}, socket}
   end
 
   def handle_in("heartbeat", %{"video_time" => v_time, "world_time" => w_time}, socket) do
-    Logger.debug "Good to know #{socket.assigns.username}'s video is at #{v_time}, as of #{w_time}"
+    Logger.debug fn ->
+      "Good to know #{socket.assigns.username}'s video is at #{v_time}, as of #{w_time}"
+    end
     {:reply, :ok, socket}
   end
 
-  # def handle_in(event, %{"action" => action, "video_time" => v_time, "world_time" => w_time}, socket) do
-  #   socket
-  #   |> get_room_state
-  #   |> VideoState.reduce(action)
-  #   |> broadcast_and_return(socket)
-  #   |> store_state
-  #   |> reply(socket)
-  # end
+  def handle_in("action", action, socket) do
+    socket
+    |> get_video_state
+    |> Video.reduce(action, socket.assigns.username)
+    |> broadcast_and_return(socket)
+    |> set_video_state(socket)
+    |> simple_reply(socket)
+  end
 
   @doc """
   This runs for each socket that is about to output a user_joined message
@@ -83,7 +80,7 @@ defmodule Wwm.Web.RoomChannel do
   """
   def handle_out("user_joined", payload, socket) do
     if socket.assigns.username === payload.username do
-      push socket, "user_joined", Events.welcome(socket.assigns.username)
+      push socket, "user_joined", Messages.welcome(socket.assigns.username)
       {:noreply, socket}
     else
       push socket, "user_joined", payload
@@ -101,7 +98,6 @@ defmodule Wwm.Web.RoomChannel do
   end
 
   def handle_out("new_msg", payload, socket) do
-    IO.inspect payload
     if socket.assigns.username === payload.sender do
       {:noreply, socket}
     else
@@ -112,8 +108,21 @@ defmodule Wwm.Web.RoomChannel do
 
   # Private convenience methods
   defp broadcast_and_return(video_state, socket) do
-    broadcast! socket, "state_change", videoEvent
+    broadcast! socket, "state_change", video_state
     video_state
   end
 
+  defp get_video_state(socket) do
+    socket.topic
+    |> Store.fetch(@default_state)
+  end
+
+  defp set_video_state(state, socket) do
+    socket.topic
+    |> Store.set(state)
+  end
+
+  defp simple_reply(result, socket) do
+    {:reply, {:ok, result}, socket}
+  end
 end

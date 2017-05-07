@@ -99,6 +99,12 @@ channel.on("user_joined", payload => {
   appendMessage(payload.body);
 });
 
+channel.on("state_change", payload => {
+  console.log("here is the state_chagne payload");
+  console.log(payload);
+  appendMessage(payload);
+});
+
 channel.join()
   .receive("ok", resp => { console.log("Connected", resp)})
   .receive("error", resp => { 

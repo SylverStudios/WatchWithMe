@@ -1,6 +1,13 @@
 defmodule Wwm.Application do
   use Application
 
+  @moduledoc """
+  Supervises 3 processes
+  Repo - currently, unused
+  Endpoint - socket handling
+  Store - KV genserver
+  """
+
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -14,6 +21,8 @@ defmodule Wwm.Application do
       supervisor(Wwm.Web.Endpoint, []),
       # Start your own worker by calling: Wwm.Worker.start_link(arg1, arg2, arg3)
       # worker(Wwm.Worker, [arg1, arg2, arg3]),
+
+      supervisor(Wwm.Store.Supervisor, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
