@@ -1,4 +1,5 @@
 # App artifacts
+/assets/dist
 /_build
 /db
 /deps
