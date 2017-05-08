@@ -5,9 +5,11 @@
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --watch-stdin --progress --color",
     "deploy": "webpack -p",
-    "build:ext": "webpack --config webpack.config.chrome.js"
+    "build:ext": "rm -r dist; webpack --config webpack.config.chrome.js",
+    "clean": "rm -r dist"
   },
   "dependencies": {
+    "numeral": "^2.0.6",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html"
   },

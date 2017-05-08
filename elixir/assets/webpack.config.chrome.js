@@ -9,9 +9,9 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
  */
 module.exports = {
   entry: {
-    'background/index':     './src/background.js',
-    'browserAction/index':  './src/browserAction.js',
-    'contentScript/index':  './src/contentScript.js'
+    'background':                   './src/background.js',
+    'contentScript':                './src/contentScript.js',
+    'browserAction/browserAction':  './src/browserAction.js'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -35,7 +35,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new CopyWebpackPlugin([{ from: './static/images' }]),
-    new CopyWebpackPlugin([{ from: './manifest' }])
+    new CopyWebpackPlugin([{ from: './src/images', to: 'images' }]),
+    new CopyWebpackPlugin([{ from: './src/manifest.json' }]),
+    new CopyWebpackPlugin([{ from: './src/browserAction', to: 'browserAction' }])
   ]
 };

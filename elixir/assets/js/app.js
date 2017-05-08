@@ -1,9 +1,13 @@
 import "phoenix_html"
 
 // import socket from "./socket"
-import channel from '../src/simpleTools/socketConnect';
-import video from '../src/simpleTools/videoConnect';
-import actions from '../src/simpleTools/actions';
+import channel from '../src/wrappers/channelConnect';
+import Video from '../src/wrappers/Video';
+import actions from '../src/models/actions';
+import VideoHistory from '../src/models/VideoHistory';
+
+let video = new Video();
+const videoHistory = new VideoHistory();
 
 
 // Thought
@@ -49,7 +53,22 @@ const updateVideoState = (state) => {
   }
 }
 
+const updateVideoHistory = (state) => {
+  videoHistory.add(state);
 
+  // Remove old content
+  const myNode = document.getElementById("history-list");
+  while (myNode.firstChild) {
+      myNode.removeChild(myNode.firstChild);
+  }
+
+  // Add new content
+  videoHistory.queue.forEach((historyEntry) => {
+    let li = document.createElement("li");
+    li.appendChild(document.createTextNode(historyEntry));
+    myNode.appendChild(li);
+  });
+}
 /**
  * State looks like this
  * { is_playing: boolean,
@@ -58,6 +77,8 @@ const updateVideoState = (state) => {
  * }
  */
 const handleStateChange = (state) => {
+  updateVideoHistory(state);
+
   console.log("recieved a state change from ", state.last_action.initiator);
   console.log(`I am user: ${channel.username}`);
   if (state.last_action.initiator == channel.username) {
