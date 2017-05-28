@@ -6,6 +6,7 @@
     "watch": "webpack --watch-stdin --progress --color",
     "deploy": "webpack -p",
     "build:ext": "rm -r dist; webpack --config webpack.config.chrome.js",
+    "watch:ext": "webpack --config webpack.config.chrome.js --watch-stdin --progress --color",
     "clean": "rm -r dist"
   },
   "dependencies": {

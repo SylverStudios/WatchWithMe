@@ -28,6 +28,11 @@ class VideoHistory {
     this.trim();
   }
 
+  addMessage(message) {
+    this._queue.push(message);
+    this.trim();
+  }
+
   trim() {
     if (this._queue.length > 10) {
       this._queue.shift();

@@ -7,8 +7,9 @@
 
 import { ChromeMessages } from './models/Constants';
 
-const background = chrome.extension.getBackgroundPage();
-
+let backgroundWindow;
+let videoHistory;
+let sendMessageToContentScript;
 
 const populateHistory = function () {
   const historyPageElement = document.getElementById('history-list');
@@ -20,13 +21,31 @@ const populateHistory = function () {
   });
 };
 
+function test() {
+  console.log('yes you hit the test fxn');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   console.log('browserAction script is live');
-  background.sendMessageToContentScript(ChromeMessages.POPUP_OPEN_EVENT);
+
+  backgroundWindow = chrome.extension.getBackgroundPage();
+  console.log(backgroundWindow);
+
+  videoHistory = backgroundWindow.videoHistory;
+  sendMessageToContentScript = backgroundWindow.sendMessageToContentScript;
+
+  sendMessageToContentScript(ChromeMessages.POPUP_OPEN_EVENT);
   
   addEventListener('unload',() => {
-    background.sendMessageToContentScript(ChromeMessages.POPUP_CLOSE_EVENT);
+    sendMessageToContentScript(ChromeMessages.POPUP_CLOSE_EVENT);
   }, true);
   
+
+  document.querySelector("#connect-btn").addEventListener("click", () => {
+    console.log('sending connect message');
+    sendMessageToContentScript(ChromeMessages.FIND_NEW_VIDEO_COMMAND);
+  });
+
   populateHistory();
 });
+

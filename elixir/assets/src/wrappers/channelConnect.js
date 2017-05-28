@@ -22,7 +22,8 @@ const getRandomInt = () => { return Math.floor(Math.random() * (20000)); }
  * 
  */
 
-const connect = function(address, room, username) {
+const connect = function(address, room, username = getRandomInt()) {
+
   const socket = new Socket(address, {params: { username: username } });
   socket.connect();
 
@@ -30,7 +31,7 @@ const connect = function(address, room, username) {
   channel.username = username;
 
   channel.join()
-    .receive("ok", resp => { console.log("Connected", resp)})
+    .receive("ok", resp => { console.log("Channel connected")})
     .receive("error", resp => { 
       appendMessage("Unable to join");
       console.log("failed to connect: ", resp)});
@@ -38,6 +39,6 @@ const connect = function(address, room, username) {
   return channel;
 }
 
-export default connect("/socket", "room:lobby", getRandomInt());
+// export default connect("/socket", "room:lobby", getRandomInt());
 
 export { connect };

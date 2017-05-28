@@ -16,6 +16,8 @@
 import { connect } from '../src/wrappers/channelConnect';
 import VideoHistory from '../src/models/VideoHistory';
 
+const serverIp = 'localhost';
+const address = 'ws://' + serverIp + ':4000/socket'
 let channel;
 let tabId;
 const videoHistory = new VideoHistory();
@@ -46,14 +48,16 @@ function setHomeTab() {
  * 3. Handle messages from channel
  */
 const connect2Channel = (address, room) => {
-  chrome.identity.getProfileUserInfo(function (userInfo) {
+  return chrome.identity.getProfileUserInfo(function (userInfo) {
     const myUsername = userInfo.email.split('@')[0];
     channel = connect(address, room, myUsername);
+    channel.on("user_joined", handleUserJoin);
+    channel.on("state_change", handleStateChange);
   });
 };
 
 const handleUserJoin = (channelPayload) => {
-  videoHistory.add(payload.body);
+  videoHistory.addMessage(channelPayload.body);
 };
 
 const handleStateChange = (channelPayload) => {
@@ -88,14 +92,15 @@ const handleMessageFromContentScript = message => {
 }
 
 const init = () => {
+  console.log('where am i');
   chrome.runtime.onMessage.addListener(handleMessageFromContentScript);
   
-  connect2Channel("/socket", "room:lobby");
-  channel.on("user_joined", handleUserJoin);
-  channel.on("state_change", handleStateChange);
+  connect2Channel(address, "room:lobby");
+  
+  window.videoHistory = videoHistory;
+  window.sendMessageToContentScript = sendMessageToContentScript;
 }
 
 init();
 
 // 2. Export videoHistory and mesageContentScript for the browser action
-export { videoHistory, sendMessageToContentScript };

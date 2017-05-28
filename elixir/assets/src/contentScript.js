@@ -24,10 +24,12 @@ let video
 //  VIDEO EVENT HANDLING
 //  Listen to on video event, send the message to the background script
 const handlePlay = (event) => {
+  console.log('Caught a play');
   chrome.runtime.sendMessage(actions.play(video.time, undefined));
 }
 
 const handlePause = (event) => {
+  console.log('Caught a pause');
   chrome.runtime.sendMessage(actions.pause(video.time, undefined));
 }
 
@@ -36,21 +38,30 @@ const handlePause = (event) => {
 //  We receive messages of many types
 //  Determine what type it is, then do something
 const handleChromeMessage = (message) => {
+  console.log("received message - ", message);
   switch (message) {
     case ChromeMessages.STATE_REQUEST_MESSAGE:
       chrome.runtime.sendMessage(video.getState());
       break;
 
     case ChromeMessages.POPUP_OPEN_EVENT:
-      video.addHighlight();
+      if (video) {
+        video.addHighlight();
+      } else {
+        console.log("Not connected to video yet, popup open event");
+      }
       break;
 
     case ChromeMessages.POPUP_CLOSE_EVENT:
-      video.removeHighlight();
+      if (video) {
+        video.removeHighlight();
+      } else {
+        console.log("Not connected to video yet, popup close event");
+      }
       break;
 
     case ChromeMessages.FIND_NEW_VIDEO_COMMAND:
-      video.selectNextVideoElement();
+      connectToVideo();
       break;
 
     // If it's not one of our events, then it
@@ -65,14 +76,22 @@ const handleChromeMessage = (message) => {
   }
 }
 
+const connectToVideo = () => {
+  console.log('Connecting to video');
+  video = new Video();
+  video.addHighlight();
+  video.on("play", handlePlay);
+  video.on("pause", handlePause);
+}
+
 
 // Add highlight style to DOM
-const setWwmStyle = function() {
+const addWwmVideoStyle = function() {
   const css = '.wwmVideo { border: 2px solid #35D418; border-radius: 20px; }';
   const styleTag = document.createElement('style');
   styleTag.type = 'text/css';
 
-  if (style.styleSheet){
+  if (styleTag.styleSheet){
     styleTag.styleSheet.cssText = css;
   } else {
     styleTag.appendChild(document.createTextNode(css));
@@ -80,17 +99,12 @@ const setWwmStyle = function() {
   document.querySelector("head").appendChild(styleTag);
 }
 
-function init() {
-  setWwmClassStyle();
-  
-  video = new Video();
-  video.on("play", handlePlay);
-  video.on("pause", handlePause);
 
-  chrome.runtime.connect();
-  chrome.runtime.onMessage.addListener((message) => {
-    handleChromeMessage(message);
-  });
-}
+// Start stuff
+addWwmVideoStyle();
+console.log('content script loaded');
 
-init();
+chrome.runtime.connect();
+chrome.runtime.onMessage.addListener((message) => {
+  handleChromeMessage(message);
+});
