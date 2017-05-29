@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+
+  "name": "Watch With Me",
+  "description": "Sync videos with your friends!!",
+  "version": "1.0",
+
+  "icons": {
+        "64": "images/wwmLogo64.png"
+  },
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "http://*/",
+    "https://*/",
+    "file:///*/*",
+    "identity",
+    "identity.email"
+  ],
+
+// Dom Access
+  "content_scripts": [
+    {
+      "matches" : ["https://*/*","file:///*/*"],
+      "js": ["contentScript.js"]
+    }
+  ],
+
+// Middleware
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+// UI Page
+  "browser_action": {
+    "default_icon": {
+      "38": "images/wwmLogo38.png"
+    },
+    "default_title": "Watch With Me",
+    "default_popup": "browserAction/browserAction.html"
+  }
+}

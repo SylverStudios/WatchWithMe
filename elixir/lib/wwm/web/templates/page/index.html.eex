@@ -1,6 +1,7 @@
 
 <span>Server Test Client</span>
 <div id="messages"></div>
+
 <input id="chat-input" type="text"></input>
 
 <button id="playButton">Play</button>
@@ -9,3 +10,6 @@
 <br></br>
 
 <video src="media/samplevideo.mp4" controls></video>
+
+<span>Video History</span>
+<div id="history-list"></div>

@@ -5,7 +5,7 @@ const getRandomInt = () => { return Math.floor(Math.random() * (20000)); }
 
 /**
  * Simply connects with these defaults
- * URL = /socket
+ * address = /socket
  * Username = randomInt()
  * Room = room:lobby
  * 
@@ -22,16 +22,16 @@ const getRandomInt = () => { return Math.floor(Math.random() * (20000)); }
  * 
  */
 
-const connect = function() {
-  const username = getRandomInt();
-  const socket = new Socket("/socket", {params: { username: username } });
+const connect = function(address, room, username = getRandomInt()) {
+
+  const socket = new Socket(address, {params: { username: username } });
   socket.connect();
 
-  const channel = socket.channel("room:lobby", {});
+  const channel = socket.channel(room, {});
   channel.username = username;
 
   channel.join()
-    .receive("ok", resp => { console.log("Connected", resp)})
+    .receive("ok", resp => { console.log("Channel connected")})
     .receive("error", resp => { 
       appendMessage("Unable to join");
       console.log("failed to connect: ", resp)});
@@ -39,4 +39,6 @@ const connect = function() {
   return channel;
 }
 
-export default connect();
+// export default connect("/socket", "room:lobby", getRandomInt());
+
+export { connect };

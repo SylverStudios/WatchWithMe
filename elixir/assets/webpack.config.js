@@ -5,9 +5,9 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 module.exports = {
   entry: ['./js/app.js', './css/app.css'],
   output: {
-	filename: 'js/wwm.bundle.js',
-	path: path.resolve(__dirname, '../priv/static'),
-	sourceMapFilename: "wwm.bundle.map",
+		filename: 'js/wwm.bundle.js',
+		path: path.resolve(__dirname, '../priv/static'),
+		sourceMapFilename: "wwm.bundle.map",
   },
   resolve: {
     modules: [ "node_modules", __dirname + "/js" ]
@@ -20,7 +20,7 @@ module.exports = {
 		  use: {
 			loader: 'babel-loader',
 			options: {
-	    	  presets: ['es2015']
+				presets: ['es2015']
 			}
 		  }
 		},
@@ -31,7 +31,7 @@ module.exports = {
 	]
 	},
 	plugins: [
-      new CopyWebpackPlugin([{ from: './static' }]),
+		new CopyWebpackPlugin([{ from: './static' }]),
  	  new ExtractTextPlugin("css/app.css"),
     ]
 };
