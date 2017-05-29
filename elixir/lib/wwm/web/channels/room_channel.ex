@@ -1,12 +1,10 @@
 defmodule Wwm.Web.RoomChannel do
   use Phoenix.Channel
   require Logger
-  alias Wwm.Video.Messages
   alias Wwm.Store
   alias Wwm.Video
+  alias Wwm.Video.Action
   
-  @default_state Video.get_default_state()
-
   @moduledoc """
   As far as I can tell, each socket that connects to this channel (room:*)
   will have a separate process waiting to call these functions.
@@ -32,7 +30,7 @@ defmodule Wwm.Web.RoomChannel do
       - *time    => millisecond timestamp
   """
 
-  intercept ["user_joined", "action", "new_msg"]
+  intercept ["new_msg"]
 
   def join("room:lobby", _message, socket) do
     send(self(), :after_join)
@@ -43,8 +41,16 @@ defmodule Wwm.Web.RoomChannel do
     {:error, %{reason: "unauthorized"}}
   end
 
+# Update state and broadcast it
   def handle_info(:after_join, socket) do
-    broadcast! socket, "user_joined", Messages.joined(socket.assigns.username)
+    action = Action.create(:join, socket.assigns.username)
+
+    socket
+    |> get_video_state
+    |> Video.reduce(action)
+    |> broadcast_and_return(socket)
+    |> set_video_state(socket)
+
     {:noreply, socket}
   end
 
@@ -52,7 +58,7 @@ defmodule Wwm.Web.RoomChannel do
 
 # handle_in take the event type, the message, and the socket
   def handle_in("new_msg", %{"body" => body}, socket) do
-    message_event = Messages.message(socket.assigns.username, body)
+    message_event = %{sender: socket.assigns.username, body: "[#{socket.assigns.username}] #{body}"}
     broadcast! socket, "new_msg", message_event
     {:reply, {:ok, message_event}, socket}
   end
@@ -64,13 +70,16 @@ defmodule Wwm.Web.RoomChannel do
     {:reply, :ok, socket}
   end
 
-  def handle_in("action", action, socket) do
-    socket
-    |> get_video_state
-    |> Video.reduce(action, socket.assigns.username)
-    |> broadcast_and_return(socket)
-    |> set_video_state(socket)
-    |> simple_reply(socket)
+  def handle_in("action", %{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
+    
+    case Action.decode_type(type) do
+      {:ok, atom_type} ->
+        action = Action.create(atom_type, v_time, w_time, socket.assigns.username)
+        updateAndBroadcast(action, socket)
+      
+      {:error, message} ->
+        {:reply, message, socket}
+    end
   end
 
   @doc """
@@ -78,25 +87,6 @@ defmodule Wwm.Web.RoomChannel do
   We intercept the message then we can edit it based on the something
   specific to this socket - like welcome vs. other user joined
   """
-  def handle_out("user_joined", payload, socket) do
-    if socket.assigns.username === payload.username do
-      push socket, "user_joined", Messages.welcome(socket.assigns.username)
-      {:noreply, socket}
-    else
-      push socket, "user_joined", payload
-      {:noreply, socket}
-    end
-  end
-
-  def handle_out("action", payload, socket) do
-    if socket.assigns.username === payload.initiator do
-      {:noreply, socket}
-    else
-      push socket, "action", payload
-      {:noreply, socket}
-    end
-  end
-
   def handle_out("new_msg", payload, socket) do
     if socket.assigns.username === payload.sender do
       {:noreply, socket}
@@ -113,16 +103,23 @@ defmodule Wwm.Web.RoomChannel do
   end
 
   defp get_video_state(socket) do
-    socket.topic
-    |> Store.fetch(@default_state)
+    Store.fetch(socket.topic, %Video{})
   end
 
   defp set_video_state(state, socket) do
-    socket.topic
-    |> Store.set(state)
+    Store.set(socket.topic, state)
   end
 
   defp simple_reply(result, socket) do
     {:reply, {:ok, result}, socket}
+  end
+
+  defp updateAndBroadcast(action, socket) do
+    socket
+    |> get_video_state
+    |> Video.reduce(action)
+    |> broadcast_and_return(socket)
+    |> set_video_state(socket)
+    |> simple_reply(socket)
   end
 end
