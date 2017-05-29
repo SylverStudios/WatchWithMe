@@ -27,7 +27,7 @@ defmodule Wwm.Video.Action do
   @doc """
   Convenience for creating actions that don't affect the video time
   """
-  @spec create(String.t, String.t) :: action
+  @spec create(atom, String.t) :: action
   def create(type, initiator) do
     create(type, 0, :os.system_time(:milli_seconds), initiator)
   end
