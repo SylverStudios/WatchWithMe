@@ -28,27 +28,29 @@ defmodule Wwm.Video do
 
   @type video :: %Video{}
   @type action :: %Action{}
+  @type inbound_action :: %Action{type: atom, video_time: number,
+                                  world_time: number, initiator: String.t}
 
 
-# REDUCE
-  @spec reduce(video, action) :: video
-# Play case
-  def reduce(video, %Action{type: "PLAY", video_time: v_time} = action) do
+# Proper reducers using action structs reduce/2
+  @spec reduce(video, inbound_action) :: video
+  # Play case
+  def reduce(video, %Action{type: :play, video_time: v_time} = action) do
     struct(video, [is_playing: true, time: v_time, last_action: action])
   end
 
-# Pause case
-  def reduce(video, %Action{type: "PAUSE", video_time: v_time} = action) do
+  # Pause case
+  def reduce(video, %Action{type: :pause, video_time: v_time} = action) do
     struct(video, [is_playing: false, time: v_time, last_action: action])
   end
 
-# Join
-  def reduce(video, %Action{type: "JOIN"} = action) do
+  # Join
+  def reduce(video, %Action{type: :join} = action) do
     struct(video, [group_size: video.group_size + 1, last_action: action])
   end
 
-# Leave - still don't know how to monitor this one
-  def reduce(video, %Action{type: "LEAVE"} = action) do
+  # Leave - still don't know how to monitor this one
+  def reduce(video, %Action{type: :leave} = action) do
     struct(video, [group_size: video.group_size - 1, last_action: action])
   end
 
@@ -59,10 +61,4 @@ defmodule Wwm.Video do
     end
     video
   end
-
-# action with string keys - also pass the initiator
-  def reduce(video, %{"type" => type, "video_time" => v_time, "world_time" => w_time}, initiator) do
-    reduce(video, Action.create_action(type, v_time, w_time, initiator))
-  end
-
 end

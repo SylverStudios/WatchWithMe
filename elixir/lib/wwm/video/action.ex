@@ -21,43 +21,45 @@ defmodule Wwm.Video.Action do
 
   @type action :: %Action{}
 
-  @spec play(number, number, String.t) :: action
-  def play(v_time, w_time, initiator) do
-    %Action{type: "PLAY",
-      video_time: v_time,
-      world_time: w_time,
-      initiator: initiator}
+  @valid_types ["play", "pause", "join", "leave"]
+
+  
+  @doc """
+  Convenience for creating actions that don't affect the video time
+  """
+  @spec create(String.t, String.t) :: action
+  def create(type, initiator) do
+    create(type, 0, :os.system_time(:milli_seconds), initiator)
   end
 
-  @spec pause(number, number, String.t) :: action
-  def pause(v_time, w_time, initiator) do
-    %Action{type: "PAUSE",
-      video_time: v_time,
-      world_time: w_time,
-      initiator: initiator}
-  end
+  @doc """
+  Creates an action from the passed in details
 
-  @spec join(String.t) :: action
-  def join(initiator) do
-    %Action{type: "JOIN",
-      video_time: 0,
-      world_time: :os.system_time(:milli_seconds),
-      initiator: initiator}
-  end
+  First arg 'type' should an atom
+   - [:play, :pause, :join, :leave]
 
-  @spec leave(String.t) :: action
-  def leave(initiator) do
-    %Action{type: "LEAVE",
-      video_time: 0,
-      world_time: :os.system_time(:milli_seconds),
-      initiator: initiator}
-  end
-
-  @spec create_action(String.t, number, number, String.t) :: action
-  def create_action(type, video_time, world_time, initiator) do
+  """
+  @spec create(atom, number, number, String.t) :: action
+  def create(type, video_time, world_time, initiator) do
     %Action{type: type,
       video_time: video_time,
       world_time: world_time,
       initiator: initiator}
   end
+  
+
+  @doc """
+  Validation functions
+    Test if the type is valid
+  """
+  @spec decode_type(String.t) :: {atom, atom | String.t}
+  def decode_type(type) do
+    downcase_type = String.downcase(type)
+    if Enum.member?(@valid_types, downcase_type) do
+      {:ok, String.to_atom(downcase_type)}
+    else
+      {:error, "Invalid action type -- #{type}"}
+    end
+  end
+
 end

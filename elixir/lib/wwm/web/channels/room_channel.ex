@@ -1,9 +1,9 @@
 defmodule Wwm.Web.RoomChannel do
   use Phoenix.Channel
   require Logger
-  alias Wwm.Video.Action
   alias Wwm.Store
   alias Wwm.Video
+  alias Wwm.Video.Action
   
   @moduledoc """
   As far as I can tell, each socket that connects to this channel (room:*)
@@ -43,8 +43,8 @@ defmodule Wwm.Web.RoomChannel do
 
 # Update state and broadcast it
   def handle_info(:after_join, socket) do
-    action = Action.join(socket.assigns.username)
-    
+    action = Action.create(:join, socket.assigns.username)
+
     socket
     |> get_video_state
     |> Video.reduce(action)
@@ -70,13 +70,16 @@ defmodule Wwm.Web.RoomChannel do
     {:reply, :ok, socket}
   end
 
-  def handle_in("action", action, socket) do
-    socket
-    |> get_video_state
-    |> Video.reduce(action, socket.assigns.username)
-    |> broadcast_and_return(socket)
-    |> set_video_state(socket)
-    |> simple_reply(socket)
+  def handle_in("action", %{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
+    
+    case Action.decode_type(type) do
+      {:ok, atom_type} ->
+        action = Action.create(atom_type, v_time, w_time, socket.assigns.username)
+        updateAndBroadcast(action, socket)
+      
+      {:error, message} ->
+        {:reply, message, socket}
+    end
   end
 
   @doc """
@@ -109,5 +112,14 @@ defmodule Wwm.Web.RoomChannel do
 
   defp simple_reply(result, socket) do
     {:reply, {:ok, result}, socket}
+  end
+
+  defp updateAndBroadcast(action, socket) do
+    socket
+    |> get_video_state
+    |> Video.reduce(action)
+    |> broadcast_and_return(socket)
+    |> set_video_state(socket)
+    |> simple_reply(socket)
   end
 end
