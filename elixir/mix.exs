@@ -16,7 +16,7 @@ defmodule Wwm.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Wwm.Application, []},
+    [mod: {Wwm, []},
      extra_applications: [:logger, :runtime_tools]]
   end
 

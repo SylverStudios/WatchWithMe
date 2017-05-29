@@ -1,6 +1,5 @@
 defmodule Wwm.Web.RoomChannelTest do
   use Wwm.Web.ChannelCase
-  # alias Wwm.Web.RoomChannel
   alias Wwm.Web.UserSocket
 
   @topic "room:lobby"
@@ -19,18 +18,6 @@ defmodule Wwm.Web.RoomChannelTest do
       
       assert_broadcast "new_msg", %{body: ^body}
       assert_reply ref, :ok, %{body: ^body}
-  end
-
-  test "Event:user_joined - broadcast is send to channel" do
-    message = %{username: @username, body: "#{@username} joined!"}
-
-    assert_broadcast "user_joined", ^message
-  end
-
-  test "Event:user_joined - message is different for the joiner" do
-    message = %{username: @username, body: "Welcome #{@username}"}
-
-    assert_push "user_joined", ^message
   end
 
   test "Event:action - state is broadcast to everyone after an action", %{socket: socket} do
@@ -61,13 +48,9 @@ defmodule Wwm.Web.RoomChannelTest do
     socket
   end
 
-  defp get_time() do
-    :os.system_time(:milli_seconds)
-  end
+  defp get_time(), do: :os.system_time(:milli_seconds)
 
-  defp video_time() do
-    14
-  end
+  defp video_time(), do: 14
 
   defp new_incoming_play() do
     %{"type" => "PLAY", "video_time" => video_time(), "world_time" => get_time()}

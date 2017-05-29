@@ -1,4 +1,4 @@
-defmodule Wwm.Application do
+defmodule Wwm do
   use Application
 
   @moduledoc """
@@ -23,6 +23,7 @@ defmodule Wwm.Application do
       # worker(Wwm.Worker, [arg1, arg2, arg3]),
 
       supervisor(Wwm.Store.Supervisor, []),
+      
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
