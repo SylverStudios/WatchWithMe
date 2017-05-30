@@ -41,16 +41,13 @@ defmodule Wwm.Web.RoomChannel do
     {:error, %{reason: "unauthorized"}}
   end
 
-# Update state and broadcast it
+# Update state and broadcast it, no validate because we know it's a join
   def handle_info(:after_join, socket) do
-    action = Action.create(:join, socket.assigns.username)
-
-    socket
-    |> get_video_state
-    |> Video.reduce(action)
-    |> broadcast_and_return(socket)
-    |> set_video_state(socket)
-
+    
+    :join
+    |> Action.create(socket.assigns.username)
+    |> update_and_broadcast(socket)
+  
     {:noreply, socket}
   end
 
@@ -74,8 +71,10 @@ defmodule Wwm.Web.RoomChannel do
     
     case Action.decode_type(type) do
       {:ok, atom_type} ->
-        action = Action.create(atom_type, v_time, w_time, socket.assigns.username)
-        updateAndBroadcast(action, socket)
+        atom_type
+        |> Action.create(v_time, w_time, socket.assigns.username)
+        |> update_and_broadcast(socket)
+        |> simple_reply(socket)
       
       {:error, message} ->
         {:reply, message, socket}
@@ -114,12 +113,11 @@ defmodule Wwm.Web.RoomChannel do
     {:reply, {:ok, result}, socket}
   end
 
-  defp updateAndBroadcast(action, socket) do
+  defp update_and_broadcast(action, socket) do
     socket
     |> get_video_state
     |> Video.reduce(action)
     |> broadcast_and_return(socket)
     |> set_video_state(socket)
-    |> simple_reply(socket)
   end
 end

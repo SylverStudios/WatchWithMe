@@ -25,7 +25,7 @@ defmodule VideoActionTest do
   end
 
   test "decode_type returns errors on types that don't exist" do
-    type = "pray"
+    type = "lpay"
 
     {:error, _} = Action.decode_type(type)
   end
