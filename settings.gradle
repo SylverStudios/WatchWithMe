@@ -1,3 +1,0 @@
-rootProject.name = 'watch-with-me-parent'
-
-include ':server'
