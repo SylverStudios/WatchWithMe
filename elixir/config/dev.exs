@@ -6,7 +6,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :wwm, Wwm.Web.Endpoint,
+config :wwm, WwmWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -30,13 +30,13 @@ config :wwm, Wwm.Web.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :wwm, Wwm.Web.Endpoint,
+config :wwm, WwmWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/wwm/web/views/.*(ex)$},
-      ~r{lib/wwm/web/templates/.*(eex)$}
+      ~r{lib/wwm_web/views/.*(ex)$},
+      ~r{lib/wwm_web/templates/.*(eex)$}
     ]
   ]
 

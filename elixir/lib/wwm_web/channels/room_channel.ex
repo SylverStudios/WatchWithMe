@@ -1,10 +1,10 @@
-defmodule Wwm.Web.RoomChannel do
+defmodule WwmWeb.RoomChannel do
   use Phoenix.Channel
   require Logger
   alias Wwm.Store
   alias Wwm.Video
   alias Wwm.Video.Action
-  
+
   @moduledoc """
   As far as I can tell, each socket that connects to this channel (room:*)
   will have a separate process waiting to call these functions.
@@ -23,7 +23,7 @@ defmodule Wwm.Web.RoomChannel do
     {type, video_time, world_time}
      - type     => PLAY|PAUSE
      - *time    => millisecond timestamp
-  
+
   Event: heartbeat
     Message requires format
     {video_time, world_time}
@@ -43,11 +43,11 @@ defmodule Wwm.Web.RoomChannel do
 
 # Update state and broadcast it, no validate because we know it's a join
   def handle_info(:after_join, socket) do
-    
+
     :join
     |> Action.create(socket.assigns.username)
     |> update_and_broadcast(socket)
-  
+
     {:noreply, socket}
   end
 
@@ -68,14 +68,14 @@ defmodule Wwm.Web.RoomChannel do
   end
 
   def handle_in("action", %{"type" => type, "video_time" => v_time, "world_time" => w_time}, socket) do
-    
+
     case Action.decode_type(type) do
       {:ok, atom_type} ->
         atom_type
         |> Action.create(v_time, w_time, socket.assigns.username)
         |> update_and_broadcast(socket)
         |> simple_reply(socket)
-      
+
       {:error, message} ->
         {:reply, message, socket}
     end

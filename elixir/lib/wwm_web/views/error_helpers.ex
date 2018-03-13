@@ -1,4 +1,4 @@
-defmodule Wwm.Web.ErrorHelpers do
+defmodule WwmWeb.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -32,9 +32,9 @@ defmodule Wwm.Web.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(Wwm.Web.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(WwmWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(Wwm.Web.Gettext, "errors", msg, opts)
+      Gettext.dgettext(WwmWeb.Gettext, "errors", msg, opts)
     end
   end
 end

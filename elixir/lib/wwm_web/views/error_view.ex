@@ -1,5 +1,5 @@
-defmodule Wwm.Web.ErrorView do
-  use Wwm.Web, :view
+defmodule WwmWeb.ErrorView do
+  use WwmWeb, :view
 
   def render("404.html", _assigns) do
     "Page not found"

@@ -1,3 +1,3 @@
-defmodule Wwm.Web.PageViewTest do
-  use Wwm.Web.ConnCase, async: true
+defmodule WwmWeb.PageViewTest do
+  use WwmWeb.ConnCase, async: true
 end

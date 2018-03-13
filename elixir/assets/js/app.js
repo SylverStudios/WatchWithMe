@@ -1,5 +1,3 @@
-import "phoenix_html"
-
 // import socket from "./socket"
 import channel from '../src/wrappers/channelConnect';
 import Video from '../src/wrappers/Video';
@@ -18,7 +16,7 @@ const videoHistory = new VideoHistory();
 
 
 
-let chatInput         = document.querySelector("#chat-input");
+let chatInput = document.querySelector("#chat-input");
 let messagesContainer = document.querySelector("#messages");
 
 const appendMessage = (text) => {
@@ -28,9 +26,9 @@ const appendMessage = (text) => {
 };
 
 chatInput.addEventListener("keypress", event => {
-  if(event.keyCode === 13){
+  if (event.keyCode === 13) {
     appendMessage(chatInput.value)
-    channel.push("new_msg", {body: chatInput.value})
+    channel.push("new_msg", { body: chatInput.value })
     chatInput.value = ""
   }
 });
@@ -39,7 +37,7 @@ chatInput.addEventListener("keypress", event => {
  * Annoyingly unbind the listener
  * change the video state
  * then rebind the listener
- * 
+ *
  * For local stuff, don't send the time.
  * If you send time and it's a local video it just goes to 0 because
  * the server can't handle requests with partial headers
@@ -59,7 +57,7 @@ const updateVideoHistory = (state) => {
   // Remove old content
   const myNode = document.getElementById("history-list");
   while (myNode.firstChild) {
-      myNode.removeChild(myNode.firstChild);
+    myNode.removeChild(myNode.firstChild);
   }
 
   // Add new content
@@ -134,7 +132,7 @@ channel.on("state_change", payload => {
 // 1. Find the video element
 // 2. Send commands to the video
 // 3. Listen to video state change
-// 4. 
+// 4.
 
 
 
