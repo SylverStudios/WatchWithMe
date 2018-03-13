@@ -23,13 +23,13 @@
   "content_scripts": [
     {
       "matches" : ["https://*/*","file:///*/*"],
-      "js": ["contentScript.js"]
+      "js": ["contentScript/contentScript.js"]
     }
   ],
 
-// Middleware
+// Middle ware
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["background/background.js"]
   },
 
 // UI Page
@@ -39,5 +39,18 @@
     },
     "default_title": "Watch With Me",
     "default_popup": "browserAction/browserAction.html"
+  },
+
+// adds key click functionality
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+J",
+        "mac": "MacCtrl+Shift+J",
+        "chromeos": "Ctrl+Shift+J",
+        "linux": "Ctrl+Shift+J"
+      },
+      "description": "Sends a message to start the extension. Doesn't seem to work."
+    }
   }
 }
