@@ -10,10 +10,10 @@ config :wwm,
   ecto_repos: [Wwm.Repo]
 
 # Configures the endpoint
-config :wwm, Wwm.Web.Endpoint,
+config :wwm, WwmWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "LgODNdDuZZZgW+3oZjeVAjoEX0MMVlk7sebsKGKQBoOi7WVqZpjkMr+N3BhXYJCb",
-  render_errors: [view: Wwm.Web.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: WwmWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Wwm.PubSub,
            adapter: Phoenix.PubSub.PG2]
 

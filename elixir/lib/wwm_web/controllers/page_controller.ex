@@ -1,5 +1,5 @@
-defmodule Wwm.Web.PageController do
-  use Wwm.Web, :controller
+defmodule WwmWeb.PageController do
+  use WwmWeb, :controller
 
   def index(conn, _params) do
     render conn, "index.html"

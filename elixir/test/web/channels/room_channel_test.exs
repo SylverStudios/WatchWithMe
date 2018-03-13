@@ -1,6 +1,6 @@
-defmodule Wwm.Web.RoomChannelTest do
-  use Wwm.Web.ChannelCase
-  alias Wwm.Web.UserSocket
+defmodule WwmWeb.RoomChannelTest do
+  use WwmWeb.ChannelCase
+  alias WwmWeb.UserSocket
 
   @topic "room:lobby"
   @username "Shamshirz"
@@ -15,7 +15,7 @@ defmodule Wwm.Web.RoomChannelTest do
       body = createBody(socket, message)
 
       ref = push socket, "new_msg", %{username: socket.assigns.username, body: message}
-      
+
       assert_broadcast "new_msg", %{body: ^body}
       assert_reply ref, :ok, %{body: ^body}
   end
@@ -24,7 +24,7 @@ defmodule Wwm.Web.RoomChannelTest do
     incoming_event = new_incoming_play()
 
     ref = push socket, "action", incoming_event
-    
+
     assert_broadcast "state_change", %{is_playing: true}
     assert_reply ref, :ok, %{is_playing: true}
   end
@@ -39,12 +39,12 @@ defmodule Wwm.Web.RoomChannelTest do
 
 # Helper fxns
   defp createBody(socket, body) do
-     "[#{socket.assigns.username}] #{body}" 
+     "[#{socket.assigns.username}] #{body}"
   end
 
   defp createUserSocket(connection_params, topic) do
     {:ok, socket} = connect(UserSocket, connection_params)
-    {:ok, _, socket} = subscribe_and_join(socket, topic) 
+    {:ok, _, socket} = subscribe_and_join(socket, topic)
     socket
   end
 

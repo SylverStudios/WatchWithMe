@@ -1,7 +1,7 @@
-defmodule Wwm.Web.Endpoint do
+defmodule WwmWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :wwm
 
-  socket "/socket", Wwm.Web.UserSocket
+  socket "/socket", WwmWeb.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -38,7 +38,7 @@ defmodule Wwm.Web.Endpoint do
     key: "_wwm_key",
     signing_salt: "f/H0ds+K"
 
-  plug Wwm.Web.Router
+  plug WwmWeb.Router
 
   @doc """
   Dynamically loads configuration from the system environment

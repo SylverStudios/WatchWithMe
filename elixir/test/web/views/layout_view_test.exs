@@ -1,3 +1,3 @@
-defmodule Wwm.Web.LayoutViewTest do
-  use Wwm.Web.ConnCase, async: true
+defmodule WwmWeb.LayoutViewTest do
+  use WwmWeb.ConnCase, async: true
 end

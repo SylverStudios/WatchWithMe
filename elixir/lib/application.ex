@@ -1,4 +1,4 @@
-defmodule Wwm do
+defmodule Wwm.Application do
   use Application
 
   @moduledoc """
@@ -18,12 +18,12 @@ defmodule Wwm do
       # Start the Ecto repository
       supervisor(Wwm.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(Wwm.Web.Endpoint, []),
+      supervisor(WwmWeb.Endpoint, []),
       # Start your own worker by calling: Wwm.Worker.start_link(arg1, arg2, arg3)
       # worker(Wwm.Worker, [arg1, arg2, arg3]),
 
       supervisor(Wwm.Store.Supervisor, []),
-      
+
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

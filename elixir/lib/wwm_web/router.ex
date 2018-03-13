@@ -1,5 +1,5 @@
-defmodule Wwm.Web.Router do
-  use Wwm.Web, :router
+defmodule WwmWeb.Router do
+  use WwmWeb, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -13,14 +13,14 @@ defmodule Wwm.Web.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", Wwm.Web do
+  scope "/", WwmWeb do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", Wwm.Web do
+  # scope "/api", WwmWeb do
   #   pipe_through :api
   # end
 end

@@ -4,7 +4,7 @@ defmodule Wwm.Mixfile do
   def project do
     [app: :wwm,
      version: "0.0.1",
-     elixir: "~> 1.4",
+     elixir: "~> 1.6",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      start_permanent: Mix.env == :prod,
@@ -16,7 +16,7 @@ defmodule Wwm.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Wwm, []},
+    [mod: {Wwm.Application, []},
      extra_applications: [:logger, :runtime_tools]]
   end
 
@@ -28,9 +28,9 @@ defmodule Wwm.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:credo, "~> 0.7", only: [:dev, :test]},
+    [{:credo, "~> 0.8", only: [:dev, :test], runtime: false},
      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-     {:phoenix, "~> 1.3.0-rc"},
+     {:phoenix, "~> 1.3.0"},
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.2"},
      {:postgrex, ">= 0.0.0"},
