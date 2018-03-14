@@ -5,7 +5,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 /**
  * Each entry is name:address
  * So the output will name each file the key and source it from the value
- * 
+ *
  */
 module.exports = {
   entry: {
@@ -26,10 +26,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-        loader: 'babel-loader',
-        options: {
-            presets: ['es2015']
-        }
+          loader: 'babel-loader',
+          options: {
+              presets: ['react', 'stage-3']
+          }
         }
       }
     ]
