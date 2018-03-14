@@ -2,6 +2,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackExcludeAssetsPlugin = require('html-webpack-exclude-assets-plugin');
 
 const extractBrowserActionsCSS = new ExtractTextPlugin('[name].css');
 
@@ -53,7 +54,9 @@ module.exports = {
     extractBrowserActionsCSS,
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/browserAction/browserAction.html'),
-      filename: path.resolve(__dirname, 'dist/browserAction/browserAction.html')
-    })
+      filename: path.resolve(__dirname, 'dist/browserAction/browserAction.html'),
+      excludeAssets: [/background/, /contentScript/]
+    }),
+    new HtmlWebpackExcludeAssetsPlugin(),
   ]
 };
