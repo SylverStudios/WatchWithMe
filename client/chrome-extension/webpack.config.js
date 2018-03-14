@@ -15,7 +15,7 @@ module.exports = {
   entry: {
     'background':                   './src/background.js',
     'contentScript':                './src/contentScript.js',
-    'browserAction/browserAction':  './src/browserAction.js'
+    'browserAction/browserAction':  './src/browserAction/browserAction.js'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -27,7 +27,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',

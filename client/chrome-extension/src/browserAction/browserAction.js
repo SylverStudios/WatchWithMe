@@ -7,9 +7,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import './browserAction/browserAction.scss';
+import './browserAction.scss';
 
-import { ChromeMessages } from './models/Constants';
+import { ChromeMessages } from '../models/Constants';
 
 let backgroundWindow;
 let videoHistory;
