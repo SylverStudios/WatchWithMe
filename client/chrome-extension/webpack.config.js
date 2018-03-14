@@ -22,6 +22,7 @@ module.exports = {
     filename: "[name].js"
   },
   resolve: {
+    extensions: ['.js', '.jsx'],
     modules: [ "node_modules", __dirname + "/js" ]
   },
   module: {

@@ -1,25 +1,25 @@
 /**
- * 
+ *
  * Content scripts:
  * - Run in an "Isolated world."
  * - Can't access or be accessed by other scripts.
  * - Must communicate using the Chrome Window Messaging APIs.
  * - Content scripts can access the current tab's DOM.
- * 
- * 
+ *
+ *
  * Responsible
  * Find a video and start watching it.
  * Connect to the chrome runtime for messages
- * 
+ *
  * On events from chrome, do something
- * On events from the video, do something. 
+ * On events from the video, do something.
  */
 
 import Video from './wrappers/Video';
 import actions from './models/actions';
 import { ChromeMessages } from './models/Constants';
 
-let video
+let video;
 
 //  VIDEO EVENT HANDLING
 //  Listen to on video event, send the message to the background script
@@ -61,7 +61,14 @@ const handleChromeMessage = (message) => {
       break;
 
     case ChromeMessages.FIND_NEW_VIDEO_COMMAND:
-      connectToVideo();
+      const videos = document.querySelectorAll("video");
+      if (videos.length !== 1) {
+        console.log('found ' + videos.length + ' videos, exiting');
+        chrome.runtime.sendMessage('NOT_EXACTLY_ONE_VIDEO');
+      } else {
+        console.log('found ' + videos.length + ' videos, continuing');
+        connectToVideo();
+      }
       break;
 
     // If it's not one of our events, then it
@@ -87,7 +94,7 @@ const connectToVideo = () => {
 
 // Add highlight style to DOM
 const addWwmVideoStyle = function() {
-  const css = '.wwmVideo { border: 2px solid #35D418; border-radius: 20px; }';
+  const css = '.wwmVideo { border: 2px solid #35D418 }';
   const styleTag = document.createElement('style');
   styleTag.type = 'text/css';
 

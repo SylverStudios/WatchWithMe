@@ -22,7 +22,7 @@
 // Dom Access
   "content_scripts": [
     {
-      "matches" : ["https://*/*","file:///*/*"],
+      "matches" : ["http://*/*", "https://*/*", "file:///*/*"],
       "js": ["contentScript.js"]
     }
   ],
