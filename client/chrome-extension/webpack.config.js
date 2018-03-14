@@ -48,6 +48,7 @@ module.exports = {
       }
     ]
   },
+  devtool: 'cheap-module-source-map',
   plugins: [
     new CopyWebpackPlugin([{ from: './src/images', to: 'images' }]),
     new CopyWebpackPlugin([{ from: './src/manifest.json' }]),
