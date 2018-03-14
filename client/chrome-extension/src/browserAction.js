@@ -4,8 +4,10 @@
  * - Runs everytime the popup is opened.
  * - Has access to the Background Page and its functions.
  */
- import React from 'react';
- import ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import './browserAction/browserAction.scss';
 
 import { ChromeMessages } from './models/Constants';
 

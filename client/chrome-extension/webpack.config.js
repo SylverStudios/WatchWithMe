@@ -1,6 +1,9 @@
-var path = require('path');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const extractBrowserActionsCSS = new ExtractTextPlugin('[name].css');
 
 /**
  * Each entry is name:address
@@ -31,12 +34,26 @@ module.exports = {
               presets: ['react', 'stage-3']
           }
         }
+      },
+      {
+        test: /\.scss$/,
+        exclude: /\.module\.scss$/,
+        use: extractBrowserActionsCSS.extract({
+          use: [
+            { loader: 'css-loader', options: { minimize: false, sourceMap: true } },
+            { loader: 'sass-loader', options: { sourceMap: true } },
+          ],
+        }),
       }
     ]
   },
   plugins: [
     new CopyWebpackPlugin([{ from: './src/images', to: 'images' }]),
     new CopyWebpackPlugin([{ from: './src/manifest.json' }]),
-    new CopyWebpackPlugin([{ from: './src/browserAction', to: 'browserAction' }])
+    extractBrowserActionsCSS,
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/browserAction/browserAction.html'),
+      filename: path.resolve(__dirname, 'dist/browserAction/browserAction.html')
+    })
   ]
 };

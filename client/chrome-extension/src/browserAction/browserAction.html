@@ -1,27 +1,8 @@
-<!--
-Browser Action:
-- Has a visible html element.
-- Only runs while the action is open in the browser.
-- Has access to the Background Page and its functions.
-- This is the face of the extension.
-
-Notes:
-- Can't import external Libraries
-- Can't have internal scripts.
-https://developer.chrome.com/extensions/contentSecurityPolicy
- -->
-
-<!doctype html>
 <html>
   <head>
     <title>Watch With Me</title>
-
-    <link rel="stylesheet" href="browserAction.css">
-
-    <script src="browserAction.js"></script>
-
   </head>
-  <body style="width : 500px";>
+  <body>
     <div id="app-mount" />
   </body>
 
