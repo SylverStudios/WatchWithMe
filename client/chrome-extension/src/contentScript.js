@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  *
  * Content scripts:

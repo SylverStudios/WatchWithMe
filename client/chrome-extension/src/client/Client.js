@@ -1,4 +1,4 @@
-import { Socket } from "phoenix";
+import { Socket } from 'phoenix';
 
 // until we have multi-room, this is just the one room we have
 const ROOM = 'room:lobby';
@@ -20,8 +20,8 @@ class Client {
       username: this.username,
     });
     this.channel.join()
-      .receive("ok", onSuccess)
-      .receive("error", onError);
+      .receive('ok', onSuccess)
+      .receive('error', onError);
   }
 }
 

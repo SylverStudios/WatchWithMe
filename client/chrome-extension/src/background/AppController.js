@@ -1,4 +1,3 @@
-import Client from '../client/Client';
 import AppState from '../models/AppState';
 import { ChromeMessages } from '../models/Constants';
 
@@ -32,7 +31,6 @@ class AppController {
             return;
           case 'NOT_EXACTLY_ONE_VIDEO':
             updateState(s => s.set('pageIsInvalid', true));
-            return;
         }
       }
     });
@@ -40,7 +38,7 @@ class AppController {
     // set up actions that the browserAction popup can perform
     this.browserActionActions = {
       attemptConnect: () => {
-        console.log('attemptConnect')
+        console.log('attemptConnect');
         sendMessage(ChromeMessages.FIND_NEW_VIDEO_COMMAND);
       },
     };

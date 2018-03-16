@@ -1,15 +1,15 @@
-"use strict"
+/* eslint-disable */
 
 /**
  * Exports an object with two functions
  *  - play
  *  - pause
- * 
+ *
  * They each take the video time and the initiator
  * They return an object suitable to send to the server
- * 
+ *
  */
-const clientEvent = function(type, video_time, initiator) {
+const clientEvent = function (type, video_time, initiator) {
   return {
       type: type,
       video_time: video_time,

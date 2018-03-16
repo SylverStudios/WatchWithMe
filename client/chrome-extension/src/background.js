@@ -1,6 +1,6 @@
+/* globals chrome */
+
 import Client from './client/Client';
-import AppState from './models/AppState';
-import { ChromeMessages } from './models/Constants';
 import AppController from './background/AppController';
 
 /**
@@ -17,7 +17,7 @@ const sendMessage = (message) => {
       console.error('could not find active tab');
     }
   });
-}
+};
 const onMessage = fn => chrome.runtime.onMessage.addListener(fn);
 
 const appController = new AppController({ client, sendMessage, onMessage });

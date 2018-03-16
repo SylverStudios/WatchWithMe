@@ -11,6 +11,9 @@ const PopupContent = ({ connected, pageIsInvalid, couldNotConnect, onConnectClic
       {couldNotConnect ? (
         <span className="invalid-page">Could not establish connection with server</span>
       ) : null}
+      {connected ? (
+        <span className="invalid-page">Connected!</span>
+      ) : null}
     </div>
   );
 };

@@ -1,10 +1,10 @@
-"use strict"
+/* eslint-disable */
 
 /**
  * Exports a class
  * Constructor takes a video element, or if none is passed
  * will attatch to the first video element on the page
- * 
+ *
  */
 
 class Video {
@@ -37,9 +37,9 @@ class Video {
 
   /**
    * Pause is sync so you can add the listener immediately
-   * 
+   *
    * Can't find a cleaner solution
-   * 
+   *
    * Pause doesn't return a promise, but the event is still bubbling
    * after the pause line, re-attaching the listener catches the current
    * pause event.

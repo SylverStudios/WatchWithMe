@@ -1,9 +1,5 @@
-/**
- * Browser Action
- * - Has a visible html element.
- * - Runs everytime the popup is opened.
- * - Has access to the Background Page and its functions.
- */
+/* global chrome */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -11,7 +7,7 @@ import PopupContent from './PopupContent';
 
 import './browserAction.scss';
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   const { state: initialState, onStateChange, browserActionActions: actions } = chrome.extension.getBackgroundPage();
 
   const mountApp = (state) => {
