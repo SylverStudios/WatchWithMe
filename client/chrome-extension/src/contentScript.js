@@ -67,6 +67,7 @@ const handleChromeMessage = (message) => {
         chrome.runtime.sendMessage('NOT_EXACTLY_ONE_VIDEO');
       } else {
         console.log('found ' + videos.length + ' videos, continuing');
+        chrome.runtime.sendMessage('FOUND_VIDEO');
         connectToVideo();
       }
       break;
