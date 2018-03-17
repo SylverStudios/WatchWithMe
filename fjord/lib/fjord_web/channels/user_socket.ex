@@ -2,7 +2,7 @@ defmodule FjordWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", FjordWeb.RoomChannel
+  channel "room:*", FjordWeb.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,8 +19,12 @@ defmodule FjordWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
+  def connect(%{"username" => username}, socket) do
+    {:ok, assign(socket, :username, username)}
+  end
+
   def connect(_params, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, :username, "anonymous")}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
@@ -33,5 +37,5 @@ defmodule FjordWeb.UserSocket do
   #     FjordWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "user_socket:#{socket.assigns.username}"
 end
