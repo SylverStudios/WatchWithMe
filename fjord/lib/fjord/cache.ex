@@ -1,30 +1,66 @@
 defmodule Fjord.Cache do
-  use Application
+  use GenServer
 
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  def start(_type, _args) do
-    import Supervisor.Spec
+  @moduledoc """
+  Standard ETS table supervised genserver for
+  storing Key:Value pairs
 
-    # Define workers and child supervisors to be supervised
-    children = [
-      # Start the endpoint when the application starts
-      supervisor(FjordWeb.Endpoint, []),
-      # Start your own worker by calling: Fjord.Worker.start_link(arg1, arg2, arg3)
-      # worker(Fjord.Worker, [arg1, arg2, arg3]),
-      supervisor(Fjord.Cache.Supervisor, []),
-    ]
+  Exposes a fetch(key, default_value)
+  and set(key, value)
+  """
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Fjord.Supervisor]
-    Supervisor.start_link(children, opts)
+# Create an ETS table named :cache_table with 1000 entries max
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, [
+      {:ets_table_name, :cache_table},
+      {:log_limit, 1_000}
+    ], opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
-  def config_change(changed, _new, removed) do
-    FjordWeb.Endpoint.config_change(changed, removed)
-    :ok
+# public method -> get value or set default by room_id
+  def fetch(room_id, default_value) do
+    case get(room_id) do
+      {:not_found} -> set(room_id, default_value)
+      {:found, result} -> result
+    end
+  end
+
+  def set(room_id, value) do
+    GenServer.call(__MODULE__, {:set, room_id, value})
+  end
+
+# Private get
+  defp get(room_id) do
+    case GenServer.call(__MODULE__, {:get, room_id}) do
+      []                    -> {:not_found}
+      [{_room_id, result}]  -> {:found, result}
+    end
+  end
+
+  # GenServer callbacks
+  # Calls are synchronous
+  # Casts are async
+
+# Get table name from state, lookup by room_id and reply
+  def handle_call({:get, room_id}, _from, state) do
+    %{ets_table_name: ets_table_name} = state
+    result = :ets.lookup(ets_table_name, room_id)
+    {:reply, result, state}
+  end
+
+# Get table name from state, insert into table by room_id and reply
+  def handle_call({:set, room_id, value}, _from, state) do
+    %{ets_table_name: ets_table_name} = state
+    true = :ets.insert(ets_table_name, {room_id, value})
+    {:reply, value, state}
+  end
+
+#
+  def init(args) do
+    [{:ets_table_name, ets_table_name}, {:log_limit, log_limit}] = args
+
+    :ets.new(ets_table_name, [:named_table, :set, :private])
+
+    {:ok, %{log_limit: log_limit, ets_table_name: ets_table_name}}
   end
 end

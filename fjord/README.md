@@ -1,18 +1,37 @@
 # Fjord
 
-To start your Phoenix server:
+This is the super svelte server that provides a websocket api ONLY.
+Uses Phoenix 1.3 with no UI, or DB.
+This is an in memory pubsub server.
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Setup
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+* `mix deps.get`
+* `mix phx.server`
 
-## Learn more
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+## Horsin' Around
+
+* `iex -S mix`
+* > `Cache.fetch(1, %{})`
+ * >> %{}
+* > `Cache.set(1, %{user: "Aaron", data: "lots of it"})
+* > `Cache.fetch(1, %{})`
+ * >> %{user: "Aaron", data: "lots of it"}
+
+
+## How it works
+
+It's all phoenix [Channels](https://hexdocs.pm/phoenix/channels.html) under the hood.
+Every client connects to a "topic" which is something like "*" or "room:123" and that is the pubsub server.
+
+Everyone in a particular "topic" will broadcast there video actions to everyone else.
+
+The server has a couple of message types and we just take messages and broadcast them to the rest of the connected clients (not back to the sender)
+
+### Message types
+
+* new_msg    : `{body: "the message you want to send to everyone}`
+* action     : `{type, video_time, world_time}`
+* heartbeat  : `{video_time, world_time}`
