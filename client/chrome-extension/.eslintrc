@@ -5,6 +5,11 @@
     "es6": true
   },
 
+  "globals": {
+    "describe": true,
+    "it": true
+  },
+
   "rules": {
     "react/sort-prop-types": [2, { "ignoreCase": false }],
 
