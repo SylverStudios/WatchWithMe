@@ -7,7 +7,7 @@
     "deploy": "webpack -p",
     "clean": "rm -r dist",
     "lint": "eslint \"src/**/*.{js,jsx}\" --cache",
-    "test": "mocha src/**/*.test.js"
+    "test": "mocha-webpack \"src/**/*.test.js\""
   },
   "dependencies": {
     "eslint": "4.7.0",
@@ -36,6 +36,7 @@
     "html-webpack-exclude-assets-plugin": "0.0.6",
     "html-webpack-plugin": "^3.0.6",
     "mocha": "^5.0.4",
+    "mocha-webpack": "^1.1.0",
     "node-sass": "^4.7.2",
     "sass-loader": "^6.0.7",
     "style-loader": "^0.16.1",

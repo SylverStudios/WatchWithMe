@@ -1,10 +1,11 @@
 /* globals describe, it */
 /* eslint-disable no-unused-expressions */
 
-const { expect } = require('chai');
+import { expect } from 'chai';
+import AppController from './background/AppController';
 
 describe('sample test', () => {
   it('works', async () => {
-    expect(true).to.be.true;
+    expect(AppController).to.not.be.undefined;
   });
 });
