@@ -1,4 +1,4 @@
-/* globals chrome */
+/* globals chrome, window */
 
 import Client from './client/Client';
 import AppController from './background/AppController';

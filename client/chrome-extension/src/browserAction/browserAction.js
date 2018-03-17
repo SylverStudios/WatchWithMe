@@ -1,4 +1,4 @@
-/* global chrome */
+/* global chrome, document */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
