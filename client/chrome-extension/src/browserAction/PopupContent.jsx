@@ -1,5 +1,7 @@
 import React from 'react';
 
+export const notExactlyOneVideoMsg = 'Cannot connect - there is not exactly one video on this page';
+
 const PopupContent = ({ connected, connecting, pageIsInvalid, couldNotConnect, attemptConnect }) => {
   console.log(connected, connecting, pageIsInvalid, couldNotConnect, attemptConnect);
   return (
@@ -10,7 +12,7 @@ const PopupContent = ({ connected, connecting, pageIsInvalid, couldNotConnect, a
         <span className="general-message">Connecting...</span>
       ) : null}
       {pageIsInvalid ? (
-        <span className="general-message">Cannot connect - there is not exactly one video on this page</span>
+        <span className="general-message">{notExactlyOneVideoMsg}</span>
       ) : null}
       {couldNotConnect ? (
         <span className="general-message">Could not establish connection with server</span>
