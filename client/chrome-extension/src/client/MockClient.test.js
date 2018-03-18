@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import { expect } from 'chai';
+import sinon from 'sinon';
 
 import Client from './Client';
 import MockClient from './MockClient';
@@ -30,6 +31,24 @@ describe('MockClient', () => {
         mockArgNames,
         `MockClient's function '${funcName}' must have same argument names as Client`,
       ).to.deep.eql(realArgNames);
+    });
+  });
+  describe('Mock server communication', () => {
+    let client;
+    beforeEach(() => {
+      client = new MockClient();
+    });
+    it('can simulate successful connection', () => {
+      const onSuccess = sinon.spy();
+      client.connect(onSuccess);
+      client.mock.connectSuccess();
+      expect(onSuccess.called).to.be.true;
+    });
+    it('can simulate unsuccessful connection', () => {
+      const onError = sinon.spy();
+      client.connect(() => {}, onError);
+      client.mock.connectError();
+      expect(onError.called).to.be.true;
     });
   });
 });
