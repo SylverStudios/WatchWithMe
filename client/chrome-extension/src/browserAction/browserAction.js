@@ -11,14 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const { state: initialState, onStateChange, browserActionActions: actions } = chrome.extension.getBackgroundPage();
 
   const mountApp = (state) => {
-    const { connected, pageIsInvalid, couldNotConnect } = state;
-    const { attemptConnect } = actions;
-    const popupContent = (
-      <PopupContent
-        {...{ connected, pageIsInvalid, couldNotConnect, onConnectClick: attemptConnect }}
-      />
-    );
-    ReactDOM.render(popupContent, document.getElementById('app-mount'));
+    ReactDOM.render(<PopupContent {...state.toObject()} {...actions} />, document.getElementById('app-mount'));
   };
   mountApp(initialState);
   onStateChange((state) => mountApp(state));
