@@ -27,9 +27,9 @@ class PageWatcher {
       sendMessage(actions.pause(this.video.time, undefined));
     };
 
-    const connectToVideo = () => {
+    const connectToVideo = (video) => {
       console.log('Connecting to this.video');
-      this.video = new Video();
+      this.video = new Video(video);
       this.video.addHighlight();
       this.video.on('play', handlePlay);
       this.video.on('pause', handlePause);
@@ -69,7 +69,7 @@ class PageWatcher {
           } else {
             console.log('found ' + videos.length + ' videos, continuing');
             sendMessage('FOUND_VIDEO');
-            connectToVideo();
+            connectToVideo(videos[0]);
           }
           break;
 
