@@ -8,7 +8,8 @@
     "clean": "rm -r dist",
     "lint": "eslint \"src/**/*.{js,jsx}\" --cache",
     "test": "mocha-webpack --require jsdom --webpack-config webpack-config.test.js \"src/**/*.test.js\"",
-    "watch-test": "mocha-webpack --require jsdom --webpack-config webpack-config.test.js \"src/**/*.test.js\" --watch"
+    "watch-test": "mocha-webpack --require jsdom --webpack-config webpack-config.test.js \"src/**/*.test.js\" --watch",
+    "integrationTest": "mocha-webpack --webpack-config webpack-config.test.js \"src/test/IntegrationTest.js\""
   },
   "dependencies": {
     "eslint": "4.7.0",

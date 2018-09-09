@@ -5,7 +5,7 @@ const ROOM = 'room:lobby';
 
 class Client {
   constructor(address, username) {
-    console.log('construct client');
+    console.debug('construct client');
     this.username = username;
 
     this.socket = new Socket(address, {
@@ -13,7 +13,7 @@ class Client {
     });
   }
   connect(onSuccess, onError) {
-    console.log('connect');
+    console.debug('connect');
     this.socket.onError(onError);
     this.socket.connect();
     this.channel = this.socket.channel(ROOM, {
