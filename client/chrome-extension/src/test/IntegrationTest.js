@@ -14,6 +14,41 @@ const serverPath = path.resolve(repositoryRoot + serverDir);
 
 const serverStartupMsg = 'Running FjordWeb.Endpoint';
 
+const startServer = async () => {
+  const cmd = 'mix';
+  const args = ['phx.server'];
+  console.debug(`spawning server process with cmd: ${cmd} ${args.join(' ')}`);
+  const serverProcess = spawn(cmd, args, { cwd: serverPath });
+  console.debug('server process spawned');
+  await new Promise((resolve) => {
+    serverProcess.stdout.on('data', (data) => {
+      console.debug(`SERVER STDOUT: ${data}`);
+      if (data.includes(serverStartupMsg)) {
+        console.debug(`server started up successfully with stdout msg: ${data}`);
+        resolve();
+      }
+    });
+    serverProcess.stderr.on('data', (data) => console.log(`SERVER STDERR: ${data}`));
+    serverProcess.on('close', (code) => {
+      if (code !== 0) {
+        throw new Error(`SERVER process closed with code ${code}`);
+      }
+      console.debug('SERVER process shut down successfully');
+    });
+  });
+  return serverProcess;
+};
+const killServer = async (serverProcess) => {
+  if (serverProcess) {
+    console.debug('killing serverProcess');
+    serverProcess.kill();
+    await new Promise(resolve => serverProcess.on('exit', resolve));
+    console.debug('killed serverProcess');
+  } else {
+    console.warn('no serverProcess supplied to killServer(), could be an upstream bug');
+  }
+};
+
 // the phoenix Socket library requires a global 'window' object
 global.window = new JSDOM().window;
 
@@ -34,37 +69,23 @@ describe('integration between server and client', () => {
         expect(execSync('which mix').toString()).to.not.be.empty;
       });
     });
+    describe('the server', () => {
+      it('can start and stop', async function () {
+        this.timeout(20000);
+        const serverProcess = await startServer();
+        await killServer(serverProcess);
+      });
+    });
   });
 
   describe('the client', function () {
     this.timeout(20000);
     let serverProcess;
     beforeEach(async () => {
-      const cmd = 'mix';
-      const args = ['phx.server'];
-      console.debug(`spawning server process with cmd: ${cmd} ${args.join(' ')}`);
-      serverProcess = spawn(cmd, args, { cwd: serverPath });
-      console.debug('server process spawned');
-      await new Promise((resolve) => {
-        serverProcess.stdout.on('data', (data) => {
-          console.debug(`SERVER STDOUT: ${data}`);
-          if (data.includes(serverStartupMsg)) {
-            console.debug(`server started up successfully with stdout msg: ${data}`);
-            resolve();
-          }
-        });
-        serverProcess.stderr.on('data', (data) => console.log(`SERVER STDERR: ${data}`));
-        serverProcess.on('close', (code) => {
-          throw new Error(`SERVER process closed with code ${code}`);
-        });
-      });
+      serverProcess = await startServer();
     });
-    afterEach(() => {
-      if (serverProcess) {
-        console.debug('killing serverProcess');
-        serverProcess.kill();
-        console.debug('killed serverProcess');
-      }
+    afterEach(async () => {
+      await killServer(serverProcess);
     });
     it('can make a connection', async () => {
       const client = new Client('ws://localhost:4000/socket', 'user');
