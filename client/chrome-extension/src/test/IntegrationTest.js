@@ -78,20 +78,23 @@ describe('integration between server and client', () => {
     });
   });
 
-  describe('the client', function () {
+  describe('one client', function () {
     this.timeout(20000);
-    let serverProcess;
-    beforeEach(async () => {
+    let serverProcess, client;
+    before(async () => {
       serverProcess = await startServer();
     });
-    afterEach(async () => {
+    after(async () => {
       await killServer(serverProcess);
     });
     it('can make a connection', async () => {
-      const client = new Client('ws://localhost:4000/socket', 'user');
+      client = new Client('ws://localhost:4000/socket', 'user');
       await new Promise((resolve, reject) => {
         client.connect(resolve, reject);
       });
+    });
+    it('can disconnect', async (done) => {
+      client.disconnect(done);
     });
   });
 });

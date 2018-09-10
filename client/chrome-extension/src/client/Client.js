@@ -23,6 +23,13 @@ class Client {
       .receive('ok', onSuccess)
       .receive('error', onError);
   }
+  disconnect(onSuccess) {
+    this.channel.leave().receive('ok', () => {
+      this.socket.disconnect(() => {
+        onSuccess();
+      });
+    });
+  }
 }
 
 export default Client;

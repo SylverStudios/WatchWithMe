@@ -30,6 +30,9 @@ class MockClient {
   connect(onSuccess, onError) {
     console.log('MockClient::connect called with:', { onSuccess: typeof onSuccess, onError: typeof onError });
   }
+  disconnect(onSuccess) {
+    console.log('MockClient::disconnect called with:', { onSuccess: typeof onSuccess });
+  }
 }
 
 export default MockClient;
