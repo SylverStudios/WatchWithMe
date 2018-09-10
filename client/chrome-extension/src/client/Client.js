@@ -9,7 +9,7 @@ class Client {
     this.username = username;
 
     this.socket = new Socket(address, {
-      reconnectAfterMs: () => -1, // do not attempt to reconnect
+      reconnectAfterMs: () => 500,
     });
   }
   connect(onSuccess, onError) {
@@ -22,6 +22,24 @@ class Client {
     this.channel.join()
       .receive('ok', onSuccess)
       .receive('error', onError);
+    this.channel.on('state_change', (state) => {
+      // detect user join events
+      const prevGroupSize = this.prevState ? this.prevState.group_size : 0;
+      if (prevGroupSize < state.group_size) {
+        if (this.onUserJoinCallback) {
+          this.onUserJoinCallback(state.group_size);
+        }
+      }
+      this.prevState = state;
+    });
+  }
+  async connectSync() {
+    await new Promise((resolve) => {
+      const onError = (event) => {
+        throw new Error(`Could not connect: ${event}`);
+      };
+      this.connect(resolve, onError);
+    });
   }
   disconnect(onSuccess) {
     this.channel.leave().receive('ok', () => {
@@ -29,6 +47,12 @@ class Client {
         onSuccess();
       });
     });
+  }
+  async disconnectSync() {
+    await new Promise(resolve => this.disconnect(resolve));
+  }
+  onUserJoin(callback) {
+    this.onUserJoinCallback = callback;
   }
 }
 

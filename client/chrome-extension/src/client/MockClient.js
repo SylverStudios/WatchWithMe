@@ -30,8 +30,13 @@ class MockClient {
   connect(onSuccess, onError) {
     console.log('MockClient::connect called with:', { onSuccess: typeof onSuccess, onError: typeof onError });
   }
+  connectSync() {}
   disconnect(onSuccess) {
     console.log('MockClient::disconnect called with:', { onSuccess: typeof onSuccess });
+  }
+  disconnectSync() {}
+  onUserJoin(callback) {
+    console.log('MockClient::onUserJoin called with:', { callback: typeof callback });
   }
 }
 

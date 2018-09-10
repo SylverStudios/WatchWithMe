@@ -17,7 +17,7 @@ const serverStartupMsg = 'Running FjordWeb.Endpoint';
 const startServer = async () => {
   const cmd = 'mix';
   const args = ['phx.server'];
-  console.debug(`spawning server process with cmd: ${cmd} ${args.join(' ')}`);
+  console.debug(`spawning server process in dir ${serverPath} with cmd: ${cmd} ${args.join(' ')}`);
   const serverProcess = spawn(cmd, args, { cwd: serverPath });
   console.debug('server process spawned');
   await new Promise((resolve) => {
@@ -28,7 +28,7 @@ const startServer = async () => {
         resolve();
       }
     });
-    serverProcess.stderr.on('data', (data) => console.log(`SERVER STDERR: ${data}`));
+    serverProcess.stderr.on('data', (data) => console.warn(`SERVER STDERR: ${data}`));
     serverProcess.on('close', (code) => {
       if (code !== 0) {
         throw new Error(`SERVER process closed with code ${code}`);
@@ -47,6 +47,18 @@ const killServer = async (serverProcess) => {
   } else {
     console.warn('no serverProcess supplied to killServer(), could be an upstream bug');
   }
+};
+const withRunningServer = (nestedRules) => {
+  let serverProcess;
+  before(async () => {
+    serverProcess = await startServer();
+  });
+  if (nestedRules) {
+    nestedRules();
+  }
+  after(async () => {
+    await killServer(serverProcess);
+  });
 };
 
 // the phoenix Socket library requires a global 'window' object
@@ -80,21 +92,38 @@ describe('integration between server and client', () => {
 
   describe('one client', function () {
     this.timeout(20000);
-    let serverProcess, client;
-    before(async () => {
-      serverProcess = await startServer();
-    });
-    after(async () => {
-      await killServer(serverProcess);
-    });
+    withRunningServer();
+    let client;
     it('can make a connection', async () => {
       client = new Client('ws://localhost:4000/socket', 'user');
-      await new Promise((resolve, reject) => {
-        client.connect(resolve, reject);
+      await client.connectSync();
+    });
+    it('can disconnect', async () => {
+      await client.disconnectSync();
+    });
+  });
+
+  describe('two clients', function () {
+    this.timeout(20000);
+    let client1, client2;
+    withRunningServer(() => {
+      before(async () => {
+        client1 = new Client('ws://localhost:4000/socket', 'user1');
+        client2 = new Client('ws://localhost:4000/socket', 'user2');
+        await client1.connectSync();
+      });
+      after(async () => {
+        await client1.disconnectSync();
+        await client2.disconnectSync();
       });
     });
-    it('can disconnect', async (done) => {
-      client.disconnect(done);
+    it('can detect when each other joins', (done) => {
+      client1.onUserJoin((newGroupSize) => {
+        expect(newGroupSize).to.equal(2);
+        client1.onUserJoin(); // reset
+        done();
+      });
+      client2.connectSync();
     });
   });
 });
