@@ -119,9 +119,7 @@ describe('integration between server and client', () => {
         client1 = new Client('ws://localhost:4000/socket', 'user1');
         client2 = new Client('ws://localhost:4000/socket', 'user2');
         await client1.connectSync();
-        // reset callbacks
-        client1.onUserJoin();
-        client1.onPlay();
+        client1.resetCallbacks();
       });
       after(async () => {
         await client1.disconnectSync();
@@ -142,9 +140,8 @@ describe('integration between server and client', () => {
       before(async () => {
         await client1.connectSync();
         await client2.connectSync();
-        // reset callbacks
-        client1.onUserJoin();
-        client1.onPlay();
+        client1.resetCallbacks();
+        client2.resetCallbacks();
       });
       after(async () => {
         await client1.disconnectSync();
@@ -158,7 +155,17 @@ describe('integration between server and client', () => {
           expect(worldTime).to.be.above(0);
           done();
         });
-        client1.play(expectedVideoTime);
+        client2.play(expectedVideoTime);
+      });
+      it('can detect another client\'s pause message', (done) => {
+        const expectedVideoTime = 1234;
+        client1.onPause(({ videoTime, worldTime }) => {
+          expect(videoTime).to.equal(expectedVideoTime);
+          expect(worldTime).to.be.a('number');
+          expect(worldTime).to.be.above(0);
+          done();
+        });
+        client2.pause(expectedVideoTime);
       });
     });
   });

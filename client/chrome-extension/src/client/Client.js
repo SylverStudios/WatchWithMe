@@ -48,6 +48,15 @@ class Client {
           });
         }
       }
+      // detect pause events
+      if (state.last_action.type === 'pause') {
+        if (this.onPauseCallback) {
+          this.onPauseCallback({
+            videoTime: state.last_action.video_time,
+            worldTime: state.last_action.world_time,
+          });
+        }
+      }
       this.prevState = state;
     });
   }
@@ -77,6 +86,11 @@ class Client {
   async disconnectSync() {
     await new Promise(resolve => this.disconnect(resolve));
   }
+  resetCallbacks() {
+    this.onUserJoin();
+    this.onPlay();
+    this.onPause();
+  }
   onUserJoin(callback) {
     this.onUserJoinCallback = callback;
   }
@@ -89,6 +103,16 @@ class Client {
   }
   onPlay(callback) {
     this.onPlayCallback = callback;
+  }
+  pause(videoTime) {
+    this.channel.push('action', {
+      type: 'pause',
+      video_time: videoTime,
+      world_time: Date.now(),
+    });
+  }
+  onPause(callback) {
+    this.onPauseCallback = callback;
   }
 }
 
