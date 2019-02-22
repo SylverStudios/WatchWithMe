@@ -22,14 +22,15 @@ const startServer = async () => {
   console.debug('server process spawned');
   await new Promise((resolve) => {
     serverProcess.stdout.on('data', (data) => {
+      console.debug('server stdout: ', data.toString());
       if (data.includes(serverStartupMsg)) {
         console.debug(`server started up successfully with stdout msg: ${data}`);
         resolve();
       }
     });
-    serverProcess.stderr.on('data', (data) => console.warn(`SERVER STDERR: ${data}`));
+    serverProcess.stderr.on('data', (data) => console.warn(`server stderr: ${data}`));
     serverProcess.on('close', () => {
-      console.info('SERVER process shut down');
+      console.debug('server process shut down');
     });
   });
   return serverProcess;
@@ -39,7 +40,7 @@ const killServer = async (serverProcess) => {
     console.debug('killing serverProcess');
     serverProcess.kill();
     await new Promise(resolve => serverProcess.on('exit', resolve));
-    console.info('killed serverProcess');
+    console.debug('killed serverProcess');
   } else {
     console.warn('no serverProcess supplied to killServer(), could be an upstream bug');
   }
@@ -100,6 +101,14 @@ describe('integration between server and client', () => {
     it('can disconnect', async () => {
       await client.disconnectSync();
     });
+    it('gracefully handles disconnecting while unconnected', async () => {
+      await client.disconnectSync();
+      await client.disconnectSync();
+    });
+    it('gracefully handles connecting while already connected', async () => {
+      await client.connectSync();
+      await client.connectSync();
+    });
   });
 
   describe('two clients', function () {
@@ -110,7 +119,9 @@ describe('integration between server and client', () => {
         client1 = new Client('ws://localhost:4000/socket', 'user1');
         client2 = new Client('ws://localhost:4000/socket', 'user2');
         await client1.connectSync();
-        client1.onUserJoin(); // reset callback
+        // reset callbacks
+        client1.onUserJoin();
+        client1.onPlay();
       });
       after(async () => {
         await client1.disconnectSync();
@@ -126,6 +137,29 @@ describe('integration between server and client', () => {
         done();
       });
       client2.connectSync();
+    });
+    describe('with both connected', () => {
+      before(async () => {
+        await client1.connectSync();
+        await client2.connectSync();
+        // reset callbacks
+        client1.onUserJoin();
+        client1.onPlay();
+      });
+      after(async () => {
+        await client1.disconnectSync();
+        await client2.disconnectSync();
+      });
+      it('can detect another client\'s play message', (done) => {
+        const expectedVideoTime = 1234;
+        client1.onPlay(({ videoTime, worldTime }) => {
+          expect(videoTime).to.equal(expectedVideoTime);
+          expect(worldTime).to.be.a('number');
+          expect(worldTime).to.be.above(0);
+          done();
+        });
+        client1.play(expectedVideoTime);
+      });
     });
   });
 });

@@ -14,6 +14,9 @@ class Client {
   }
   connect(onSuccess, onError) {
     console.debug('connect');
+    if (this.connected) {
+      return onSuccess();
+    }
     this.socket.onError(onError);
     this.socket.connect();
     this.channel = this.socket.channel(ROOM, {
@@ -24,11 +27,11 @@ class Client {
       .receive('error', onError);
     let gotAnyStateChange = false;
     this.channel.on('state_change', (state) => {
+      console.debug(`client state_change for user '${this.username}': `, state);
       if (!gotAnyStateChange) {
         onSuccess();
         gotAnyStateChange = true;
       }
-      console.log(state);
       // detect user join events
       const prevGroupSize = this.prevState ? this.prevState.group_size : 0;
       if (prevGroupSize < state.group_size) {
@@ -36,8 +39,20 @@ class Client {
           this.onUserJoinCallback(state.group_size);
         }
       }
+      // detect play events
+      if (state.last_action.type === 'play') {
+        if (this.onPlayCallback) {
+          this.onPlayCallback({
+            videoTime: state.last_action.video_time,
+            worldTime: state.last_action.world_time,
+          });
+        }
+      }
       this.prevState = state;
     });
+  }
+  get connected() {
+    return this.socket.isConnected();
   }
   async connectSync() {
     await new Promise((resolve) => {
@@ -64,6 +79,16 @@ class Client {
   }
   onUserJoin(callback) {
     this.onUserJoinCallback = callback;
+  }
+  play(videoTime) {
+    this.channel.push('action', {
+      type: 'play',
+      video_time: videoTime,
+      world_time: Date.now(),
+    });
+  }
+  onPlay(callback) {
+    this.onPlayCallback = callback;
   }
 }
 
