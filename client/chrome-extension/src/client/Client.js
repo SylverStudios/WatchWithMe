@@ -20,9 +20,15 @@ class Client {
       username: this.username,
     });
     this.channel.join()
-      .receive('ok', onSuccess)
+      .receive('ok', () => console.debug(`connected client for user ${this.username}, now awaiting first state_change before declaring success`))
       .receive('error', onError);
+    let gotAnyStateChange = false;
     this.channel.on('state_change', (state) => {
+      if (!gotAnyStateChange) {
+        onSuccess();
+        gotAnyStateChange = true;
+      }
+      console.log(state);
       // detect user join events
       const prevGroupSize = this.prevState ? this.prevState.group_size : 0;
       if (prevGroupSize < state.group_size) {
@@ -42,6 +48,11 @@ class Client {
     });
   }
   disconnect(onSuccess) {
+    if (!this.channel) {
+      console.warn('tried to disconnect with no channel');
+      onSuccess();
+      return;
+    }
     this.channel.leave().receive('ok', () => {
       this.socket.disconnect(() => {
         onSuccess();

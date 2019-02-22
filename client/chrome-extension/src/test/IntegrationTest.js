@@ -22,18 +22,14 @@ const startServer = async () => {
   console.debug('server process spawned');
   await new Promise((resolve) => {
     serverProcess.stdout.on('data', (data) => {
-      console.debug(`SERVER STDOUT: ${data}`);
       if (data.includes(serverStartupMsg)) {
         console.debug(`server started up successfully with stdout msg: ${data}`);
         resolve();
       }
     });
     serverProcess.stderr.on('data', (data) => console.warn(`SERVER STDERR: ${data}`));
-    serverProcess.on('close', (code) => {
-      if (code !== 0) {
-        throw new Error(`SERVER process closed with code ${code}`);
-      }
-      console.debug('SERVER process shut down successfully');
+    serverProcess.on('close', () => {
+      console.info('SERVER process shut down');
     });
   });
   return serverProcess;
@@ -43,7 +39,7 @@ const killServer = async (serverProcess) => {
     console.debug('killing serverProcess');
     serverProcess.kill();
     await new Promise(resolve => serverProcess.on('exit', resolve));
-    console.debug('killed serverProcess');
+    console.info('killed serverProcess');
   } else {
     console.warn('no serverProcess supplied to killServer(), could be an upstream bug');
   }
@@ -80,6 +76,9 @@ describe('integration between server and client', () => {
       it('is installed', () => {
         expect(execSync('which mix').toString()).to.not.be.empty;
       });
+      it('has its dependencies', () => {
+        expect(execSync('mix deps.get', { cwd: serverPath }).toString()).to.not.be.empty;
+      });
     });
     describe('the server', () => {
       it('can start and stop', async function () {
@@ -111,6 +110,7 @@ describe('integration between server and client', () => {
         client1 = new Client('ws://localhost:4000/socket', 'user1');
         client2 = new Client('ws://localhost:4000/socket', 'user2');
         await client1.connectSync();
+        client1.onUserJoin(); // reset callback
       });
       after(async () => {
         await client1.disconnectSync();
@@ -118,9 +118,11 @@ describe('integration between server and client', () => {
       });
     });
     it('can detect when each other joins', (done) => {
+      expect(client1.prevState.group_size).to.equal(1);
       client1.onUserJoin((newGroupSize) => {
+        // TODO this becomes an "uncaught exception" and does not actually fail the test
+        //      but done() is never called, so it hangs until the timeout
         expect(newGroupSize).to.equal(2);
-        client1.onUserJoin(); // reset
         done();
       });
       client2.connectSync();
