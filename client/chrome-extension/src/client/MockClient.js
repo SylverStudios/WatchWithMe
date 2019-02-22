@@ -38,6 +38,19 @@ class MockClient {
   onUserJoin(callback) {
     console.log('MockClient::onUserJoin called with:', { callback: typeof callback });
   }
+  play(videoTime) {
+    console.log('MockClient::play called with:', { videoTime });
+  }
+  onPlay(callback) {
+    console.log('MockClient::onPlay called with:', { callback: typeof callback });
+  }
+  pause(videoTime) {
+    console.log('MockClient::pause called with:', { videoTime });
+  }
+  onPause(callback) {
+    console.log('MockClient::onPause called with:', { callback: typeof callback });
+  }
+  resetCallbacks() {}
 }
 
 export default MockClient;

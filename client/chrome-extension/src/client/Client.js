@@ -61,7 +61,7 @@ class Client {
     });
   }
   get connected() {
-    return this.socket.isConnected();
+    return this.socket && this.socket.isConnected();
   }
   async connectSync() {
     await new Promise((resolve) => {
