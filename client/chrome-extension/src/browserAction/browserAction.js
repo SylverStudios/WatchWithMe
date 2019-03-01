@@ -16,5 +16,5 @@ document.addEventListener('DOMContentLoaded', () => {
   mountApp(initialState);
   onStateChange((state) => mountApp(state));
 
-  console.log('browserAction script is live');
+  console.debug('browserAction script is live');
 });
