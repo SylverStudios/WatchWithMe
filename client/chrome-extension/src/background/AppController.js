@@ -32,6 +32,13 @@ class AppController {
           case 'NOT_EXACTLY_ONE_VIDEO':
             updateState(s => s.set('pageIsInvalid', true));
         }
+      } else {
+        switch (message.type) {
+          case 'PLAY':
+            const videoTime = message.video_time;
+            console.debug('sending play message to client with video time:', videoTime);
+            client.play(videoTime);
+        }
       }
     });
 
