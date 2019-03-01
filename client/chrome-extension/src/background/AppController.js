@@ -33,11 +33,16 @@ class AppController {
             updateState(s => s.set('pageIsInvalid', true));
         }
       } else {
-        switch (message.type) {
+        const type = message.type;
+        const videoTime = message.video_time;
+        switch (type) {
           case 'PLAY':
-            const videoTime = message.video_time;
             console.debug('sending play message to client with video time:', videoTime);
             client.play(videoTime);
+            return;
+          case 'PAUSE':
+            console.debug('sending pause message to client with video time:', videoTime);
+            client.pause(videoTime);
         }
       }
     });
