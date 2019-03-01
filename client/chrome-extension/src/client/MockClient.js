@@ -23,6 +23,12 @@ class MockClient {
       connectError() {
         stub.connect.lastCall.args[1]();
       },
+      playMessage({ videoTime, worldTime }) {
+        stub.onPlay.lastCall.args[0]({ videoTime, worldTime });
+      },
+      pauseMessage({ videoTime, worldTime }) {
+        stub.onPause.lastCall.args[0]({ videoTime, worldTime });
+      },
     };
 
     return stub;
