@@ -25,8 +25,10 @@ const initializeTestEnvironment = (pageHtml) => {
     sendMessage: (message) => onMessageToPageWatcher(message),
     onMessage: (callback) => { onMessageToAppController = callback; },
   });
+  const jsdom = new JSDOM(pageHtml);
+  const dom = jsdom.window.document;
   const pageWatcher = new PageWatcher({
-    dom: new JSDOM(pageHtml).window.document,
+    dom,
     sendMessage: (message) => onMessageToAppController(message),
     onMessage: (callback) => { onMessageToPageWatcher = callback; },
   });
@@ -45,7 +47,7 @@ const initializeTestEnvironment = (pageHtml) => {
   const popupContent = mount(<PopupContent {...getPopupProps()} />);
   appController.onStateChange(() => popupContent.setProps(getPopupProps()));
 
-  return { client, appController, pageWatcher, popupContent };
+  return { client, appController, pageWatcher, popupContent, dom, jsdom };
 };
 
 describe('The Entire App', () => {
@@ -80,11 +82,13 @@ describe('The Entire App', () => {
     });
 
     describe('When connection is successful', () => {
-      let popupContent, client;
+      let popupContent, client, dom, jsdom;
       it('can be initialized in a test environment', () => {
         const testEnv = initializeTestEnvironment('<video />');
         popupContent = testEnv.popupContent;
         client = testEnv.client;
+        dom = testEnv.dom;
+        jsdom = testEnv.jsdom;
       });
       it('attempts to connect when connect button is clicked', () => {
         popupContent.find('button').simulate('click');
@@ -93,6 +97,16 @@ describe('The Entire App', () => {
       it('shows that user is connected when connection is successfully made', () => {
         client.mock.connectSuccess();
         expect(popupContent.someWhere(n => n.text().includes(connectedMsg))).to.be.true;
+      });
+      describe('Video interaction', () => {
+        it('will send a play event through the client when video play is clicked', () => {
+          const video = dom.getElementsByTagName('video')[0];
+          video.dispatchEvent(new jsdom.window.Event('play'));
+          // expect client sent a play message
+          expect(client.play.calledOnce).to.equal(true);
+          // expect the play message said the video was at the start (time 0)
+          expect(client.play.firstCall.args[0]).to.equal(0);
+        });
       });
     });
   });
