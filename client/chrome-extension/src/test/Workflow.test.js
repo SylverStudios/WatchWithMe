@@ -99,6 +99,10 @@ describe('The Entire App', () => {
         expect(popupContent.someWhere(n => n.text().includes(connectedMsg))).to.be.true;
       });
       describe('Video interaction', () => {
+        beforeEach(() => {
+          client.play.reset();
+          client.pause.reset();
+        });
         it('will send a play event through the client when video play is clicked', () => {
           const video = dom.getElementsByTagName('video')[0];
           video.dispatchEvent(new jsdom.window.Event('play'));
@@ -106,6 +110,12 @@ describe('The Entire App', () => {
           expect(client.play.calledOnce).to.equal(true);
           // expect the play message said the video was at the start (time 0)
           expect(client.play.firstCall.args[0]).to.equal(0);
+        });
+        it('will send a pause event through the client when video pause is clicked', () => {
+          const video = dom.getElementsByTagName('video')[0];
+          video.dispatchEvent(new jsdom.window.Event('pause'));
+          expect(client.pause.calledOnce).to.equal(true);
+          expect(client.pause.firstCall.args[0]).to.equal(0);
         });
       });
     });
