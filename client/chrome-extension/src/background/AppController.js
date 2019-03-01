@@ -3,7 +3,7 @@ import { ChromeMessages } from '../models/Constants';
 
 class AppController {
   constructor({ client, sendMessage, onMessage }) {
-    console.log('init AppController');
+    console.debug('init AppController');
 
     // set up app state, to be shared with browserAction
     this.state = new AppState();
@@ -18,7 +18,7 @@ class AppController {
 
     // set up messaging infrastructure
     onMessage((message) => {
-      console.log('received message: ', message);
+      console.debug('received message: ', message);
       if (typeof message === 'string') {
         switch (message) {
           case 'FOUND_VIDEO':
@@ -38,7 +38,7 @@ class AppController {
     // set up actions that the browserAction popup can perform
     this.browserActionActions = {
       attemptConnect: () => {
-        console.log('attemptConnect');
+        console.debug('attemptConnect');
         sendMessage(ChromeMessages.FIND_NEW_VIDEO_COMMAND);
       },
     };

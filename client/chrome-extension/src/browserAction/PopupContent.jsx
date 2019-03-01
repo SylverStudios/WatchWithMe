@@ -6,7 +6,7 @@ export const connectionErrorMsg = 'Could not establish connection with server';
 export const connectedMsg = 'Connected!';
 
 const PopupContent = ({ connected, connecting, pageIsInvalid, couldNotConnect, attemptConnect }) => {
-  console.log(connected, connecting, pageIsInvalid, couldNotConnect, attemptConnect);
+  console.debug(connected, connecting, pageIsInvalid, couldNotConnect, attemptConnect);
   return (
     <div className="popup-content">
       <h3 className="popup-title">Watch With Me</h3>

@@ -18,17 +18,17 @@ class PageWatcher {
     //  VIDEO EVENT HANDLING
     //  Listen to on video event, send the message to the background script
     const handlePlay = () => {
-      console.log('Caught a play');
+      console.debug('Caught a play');
       sendMessage(actions.play(this.video.time, undefined));
     };
 
     const handlePause = () => {
-      console.log('Caught a pause');
+      console.debug('Caught a pause');
       sendMessage(actions.pause(this.video.time, undefined));
     };
 
     const connectToVideo = (video) => {
-      console.log('Connecting to this.video');
+      console.debug('Connecting to this.video');
       this.video = new Video(video);
       this.video.addHighlight();
       this.video.on('play', handlePlay);
@@ -39,7 +39,7 @@ class PageWatcher {
     //  We receive messages of many types
     //  Determine what type it is, then do something
     onMessage((message) => {
-      console.log('received message - ', message);
+      console.debug('received message - ', message);
       switch (message) {
         case ChromeMessages.STATE_REQUEST_MESSAGE:
           sendMessage(this.video.getState());
@@ -49,7 +49,7 @@ class PageWatcher {
           if (this.video) {
             this.video.addHighlight();
           } else {
-            console.log('Not connected to video yet, popup open event');
+            console.debug('Not connected to video yet, popup open event');
           }
           break;
 
@@ -57,17 +57,17 @@ class PageWatcher {
           if (this.video) {
             this.video.removeHighlight();
           } else {
-            console.log('Not connected to video yet, popup close event');
+            console.debug('Not connected to video yet, popup close event');
           }
           break;
 
         case ChromeMessages.FIND_NEW_VIDEO_COMMAND:
           const videos = dom.querySelectorAll('video');
           if (videos.length !== 1) {
-            console.log('found ' + videos.length + ' videos, exiting');
+            console.debug('found ' + videos.length + ' videos, exiting');
             sendMessage('NOT_EXACTLY_ONE_VIDEO');
           } else {
-            console.log('found ' + videos.length + ' videos, continuing');
+            console.debug('found ' + videos.length + ' videos, continuing');
             sendMessage('FOUND_VIDEO');
             connectToVideo(videos[0]);
           }
@@ -76,7 +76,7 @@ class PageWatcher {
         // If it's not one of our events, then it
         // should be an object describing the state
         default:
-          console.log('Content script received: ', message);
+          console.debug('Content script received: ', message);
           if (message.is_playing) {
             this.video.play(message.time);
           } else {

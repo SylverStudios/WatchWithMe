@@ -4,7 +4,7 @@ import Client from './Client';
 
 class MockClient {
   constructor(address, username) {
-    console.log('MockClient constructed with:', { address, username });
+    console.debug('MockClient constructed with:', { address, username });
     // wrap all methods of Client in sinon stubbing
     const stub = sinon.createStubInstance(Client);
 
@@ -28,27 +28,27 @@ class MockClient {
     return stub;
   }
   connect(onSuccess, onError) {
-    console.log('MockClient::connect called with:', { onSuccess: typeof onSuccess, onError: typeof onError });
+    console.debug('MockClient::connect called with:', { onSuccess: typeof onSuccess, onError: typeof onError });
   }
   connectSync() {}
   disconnect(onSuccess) {
-    console.log('MockClient::disconnect called with:', { onSuccess: typeof onSuccess });
+    console.debug('MockClient::disconnect called with:', { onSuccess: typeof onSuccess });
   }
   disconnectSync() {}
   onUserJoin(callback) {
-    console.log('MockClient::onUserJoin called with:', { callback: typeof callback });
+    console.debug('MockClient::onUserJoin called with:', { callback: typeof callback });
   }
   play(videoTime) {
-    console.log('MockClient::play called with:', { videoTime });
+    console.debug('MockClient::play called with:', { videoTime });
   }
   onPlay(callback) {
-    console.log('MockClient::onPlay called with:', { callback: typeof callback });
+    console.debug('MockClient::onPlay called with:', { callback: typeof callback });
   }
   pause(videoTime) {
-    console.log('MockClient::pause called with:', { videoTime });
+    console.debug('MockClient::pause called with:', { videoTime });
   }
   onPause(callback) {
-    console.log('MockClient::onPause called with:', { callback: typeof callback });
+    console.debug('MockClient::onPause called with:', { callback: typeof callback });
   }
   resetCallbacks() {}
 }

@@ -12,4 +12,4 @@ new PageWatcher({ // eslint-disable-line no-new
   onMessage: (callback) => chrome.runtime.onMessage.addListener(callback),
 });
 
-console.log('content script loaded');
+console.debug('content script loaded');
