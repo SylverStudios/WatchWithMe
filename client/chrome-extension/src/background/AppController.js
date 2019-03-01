@@ -54,6 +54,14 @@ class AppController {
         sendMessage(ChromeMessages.FIND_NEW_VIDEO_COMMAND);
       },
     };
+
+    // listen to messages coming through the client and route them appropriately
+    client.onPlay(({ videoTime, worldTime }) => {
+      sendMessage({ type: 'PLAY', videoTime, worldTime });
+    });
+    client.onPause(({ videoTime, worldTime }) => {
+      sendMessage({ type: 'PAUSE', videoTime, worldTime });
+    });
   }
 }
 

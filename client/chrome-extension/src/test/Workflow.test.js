@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import { JSDOM } from 'jsdom';
 import { mount, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import sinon from 'sinon';
 
 import AppController from '../background/AppController';
 import PopupContent, {
@@ -116,6 +117,21 @@ describe('The Entire App', () => {
           video.dispatchEvent(new jsdom.window.Event('pause'));
           expect(client.pause.calledOnce).to.equal(true);
           expect(client.pause.firstCall.args[0]).to.equal(0);
+        });
+        it('will tell the video to play when receiving a play event from the client', () => {
+          const video = dom.getElementsByTagName('video')[0];
+          const videoPlayStub = sinon.stub(video, 'play');
+          videoPlayStub.returns(Promise.resolve());
+          client.mock.playMessage({ videoTime: 1234, worldTime: 1235 });
+          expect(videoPlayStub.calledOnce).to.equal(true);
+        });
+        it('will tell the video to pause when receiving a pause event from the client', () => {
+          // TODO share logic with play test
+          const video = dom.getElementsByTagName('video')[0];
+          const videoPauseStub = sinon.stub(video, 'pause');
+          videoPauseStub.returns(Promise.resolve());
+          client.mock.pauseMessage({ videoTime: 1234, worldTime: 1235 });
+          expect(videoPauseStub.calledOnce).to.equal(true);
         });
       });
     });

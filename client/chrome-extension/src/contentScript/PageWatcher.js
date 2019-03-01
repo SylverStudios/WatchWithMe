@@ -77,10 +77,13 @@ class PageWatcher {
         // should be an object describing the state
         default:
           console.debug('Content script received: ', message);
-          if (message.is_playing) {
-            this.video.play(message.time);
-          } else {
-            this.video.pause(message.time);
+          const { type, videoTime } = message;
+          switch (type) {
+            case 'PLAY':
+              this.video.play(videoTime);
+              return;
+            case 'PAUSE':
+              this.video.pause(videoTime);
           }
       }
     });
