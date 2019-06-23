@@ -6,9 +6,6 @@ matrix:
       before_install:
         - cd fjord
 
-    - language: elixir
-      elixir: '1.4'
-      otp_release: '20.0'
     - language: node_js
       node_js: '8.9.4'
       before_install:
