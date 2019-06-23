@@ -12,11 +12,6 @@
     "integrationTest": "mocha-webpack --webpack-config webpack-config.test.js \"src/test/IntegrationTest.js\""
   },
   "dependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb": "^15.1.0",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.13.0",
     "immutable": "^3.8.2",
     "numeral": "^2.0.6",
     "phoenix": "^1.4.8",
@@ -33,6 +28,11 @@
     "chai": "^4.2.0",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^0.28.11",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.13.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "extract-text-webpack-plugin": "^2.1.2",
