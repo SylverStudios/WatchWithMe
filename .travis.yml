@@ -5,15 +5,23 @@ matrix:
       otp_release: '20.0'
       before_install:
         - cd fjord
-      script:
-        - mix test
 
+    - language: elixir
+      elixir: '1.4'
+      otp_release: '20.0'
     - language: node_js
       node_js: '8.9.4'
       before_install:
-        - cd client/chrome-extension
+        - cd fjord
         - npm i -g npm@5.6.0
       install:
+        - cd fjord
+        - mix local.rebar --force
+        - mix local.hex --force
+        - mix deps.get
+        - cd ../client/chrome-extension
+        - nvm install 8.9.4
+        - npm i -g npm@5.6.0
         - npm install
       script:
         - npm run test
