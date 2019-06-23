@@ -1,12 +1,14 @@
 matrix:
   include:
-    - language: elixir
+    - name: "Elixir Server"
+      language: elixir
       elixir: '1.4'
       otp_release: '20.0'
       before_install:
         - cd fjord
 
-    - language: elixir
+    - name: "JS Client & Integration"
+      language: elixir
       elixir: '1.4'
       otp_release: '20.0'
       install:
