@@ -83,7 +83,7 @@ describe('integration between server and client', () => {
     });
     describe('the server', () => {
       it('can start and stop', async function () {
-        this.timeout(20000);
+        this.timeout(60000);
         const serverProcess = await startServer();
         await killServer(serverProcess);
       });
