@@ -16,15 +16,25 @@ The new server implementation is written in Elixir! Conceptually, it's not terri
 I am in the process of moving the UI into the elixir/assets directory. I'm trying to setup something similar to the Java implementation where you can do some basic testing with the server and without having to redeploy the chrome extension every time you want to test the UI.
 
 
-### Upgrade
+### Try it out
 
 ```bash
-# Elixir v1.9, Erlang and OTP 22 (20-22 will work), Phoenix 1.4
-brew upgrade elixir
-
+# Run the server
 cd fjord
-mix deps.get
-mix compile
-mix test
+mix phx.server
+
+# Build the chrome extension
+cd client/chrome-extention
+npm run build
+
+# Add extension to chrome
+# Open Chrome
+# Settings -> More Tools -> Extensions
+# Load Unpacked (Top Left) -> Select the `dist` folder
+# Should see icon added to chrome top right
+# Open a youtube page and click the extension, then click `connect`
+
+# Repeat with a Chrome signed in as another user
+# I did some crazy arcane thing to have 2 versions of chrome on my compy, not sure how to repeat.
 
 ```

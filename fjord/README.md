@@ -1,7 +1,7 @@
 # Fjord
 
 This is the super svelte server that provides a websocket api ONLY.
-Uses Phoenix 1.3 with no UI, or DB.
+Uses Phoenix 1.4 with no UI, or DB.
 This is an in memory pubsub server.
 
 
@@ -13,12 +13,14 @@ This is an in memory pubsub server.
 
 ## Horsin' Around
 
-* `iex -S mix`
-* > `Cache.fetch(1, %{})`
- * >> %{}
-* > `Cache.set(1, %{user: "Aaron", data: "lots of it"})
-* > `Cache.fetch(1, %{})`
- * >> %{user: "Aaron", data: "lots of it"}
+```bash
+> iex -S mix
+> Cache.fetch(1, %{})
+# %{}
+> Cache.set(1, %{user: "Aaron", data: "lots of it"})
+> Cache.fetch(1, %{})
+# %{user: "Aaron", data: "lots of it"}
+ ```
 
 
 ## How it works
@@ -35,3 +37,16 @@ The server has a couple of message types and we just take messages and broadcast
 * new_msg    : `{body: "the message you want to send to everyone}`
 * action     : `{type, video_time, world_time}`
 * heartbeat  : `{video_time, world_time}`
+
+### Upgrade
+
+```bash
+# Elixir v1.9, Erlang and OTP 22 (20-22 will work), Phoenix 1.4
+brew upgrade elixir
+
+cd fjord
+mix deps.get
+mix compile
+mix test
+
+```
