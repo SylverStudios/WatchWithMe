@@ -10,14 +10,16 @@ config :fjord, FjordWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "3DZ0NNo+LhN1K2mu9qikfRYccpXrZKBp/IKj2F0R+AxwIh1RxPHjYcwLdKEoQ5a2",
   render_errors: [view: FjordWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Fjord.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Fjord.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:user_id]
 
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"
