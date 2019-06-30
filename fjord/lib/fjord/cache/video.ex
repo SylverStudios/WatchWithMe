@@ -3,7 +3,6 @@ defmodule Fjord.Cache.Video do
   alias Fjord.Cache.Video
   require Logger
 
-
   @moduledoc """
   Set of functions for manipulating a videoState struct
 
@@ -24,41 +23,46 @@ defmodule Fjord.Cache.Video do
 
   """
 
-  defstruct [is_playing: false, time: 0, group_size: 0, last_action: nil]
+  @derive Jason.Encoder
+  defstruct is_playing: false, time: 0, group_size: 0, last_action: nil
 
   @type video :: %Video{}
   @type action :: %Action{}
-  @type inbound_action :: %Action{type: atom, video_time: number,
-                                  world_time: number, initiator: String.t}
+  @type inbound_action :: %Action{
+          type: atom,
+          video_time: number,
+          world_time: number,
+          initiator: String.t()
+        }
 
-
-# Proper reducers using action structs reduce/2
+  # Proper reducers using action structs reduce/2
   @spec reduce(video, inbound_action) :: video
   # Play case
   def reduce(video, %Action{type: :play, video_time: v_time} = action) do
-    struct(video, [is_playing: true, time: v_time, last_action: action])
+    struct(video, is_playing: true, time: v_time, last_action: action)
   end
 
   # Pause case
   def reduce(video, %Action{type: :pause, video_time: v_time} = action) do
-    struct(video, [is_playing: false, time: v_time, last_action: action])
+    struct(video, is_playing: false, time: v_time, last_action: action)
   end
 
   # Join
   def reduce(video, %Action{type: :join} = action) do
-    struct(video, [group_size: video.group_size + 1, last_action: action])
+    struct(video, group_size: video.group_size + 1, last_action: action)
   end
 
   # Leave - still don't know how to monitor this one
   def reduce(video, %Action{type: :leave} = action) do
-    struct(video, [group_size: video.group_size - 1, last_action: action])
+    struct(video, group_size: video.group_size - 1, last_action: action)
   end
 
-# Catch all
+  # Catch all
   def reduce(video, action) do
-    Logger.info fn ->
+    Logger.info(fn ->
       "The action didn't match any of the expected cases: #{action}'"
-    end
+    end)
+
     video
   end
 end

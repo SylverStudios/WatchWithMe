@@ -3,7 +3,7 @@ defmodule Cache.CacheTest do
   alias Fjord.Cache
 
   test "fetch will set default value if not found" do
-    default = default_value();
+    default = default_value()
 
     value_at_1 = Cache.fetch(1, default)
 
@@ -18,12 +18,14 @@ defmodule Cache.CacheTest do
     assert custom == Cache.fetch(5, default_value())
   end
 
-# Private
+  # Private
   defp default_value() do
-    %{atom_key: true, "string_key": 100}
+    %{atom_key: true} |> Map.put("string_key", 100)
   end
 
   defp custom_value(atom_key_value, string_key_value) do
-    %{atom_key: atom_key_value, "string_key": string_key_value}
+    %{}
+    |> Map.put(:atom_key, atom_key_value)
+    |> Map.put("string_key", string_key_value)
   end
 end

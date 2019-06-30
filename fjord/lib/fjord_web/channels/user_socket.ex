@@ -2,11 +2,7 @@ defmodule FjordWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "room:*", FjordWeb.RoomChannel
-
-  ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket
-  # transport :longpoll, Phoenix.Transports.LongPoll
+  channel("room:*", FjordWeb.RoomChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

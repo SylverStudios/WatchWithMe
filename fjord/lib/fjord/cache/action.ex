@@ -1,5 +1,6 @@
 defmodule Fjord.Cache.Action do
   alias Fjord.Cache.Action
+
   @moduledoc """
   Provides a struct describing the change in video state
   """
@@ -16,6 +17,7 @@ defmodule Fjord.Cache.Action do
 
   """
 
+  @derive Jason.Encoder
   @enforce_keys [:type, :video_time, :world_time, :initiator]
   defstruct [:type, :video_time, :world_time, :initiator]
 
@@ -23,11 +25,10 @@ defmodule Fjord.Cache.Action do
 
   @valid_types ["play", "pause", "join", "leave"]
 
-
   @doc """
   Convenience for creating actions that don't affect the video time
   """
-  @spec create(atom, String.t) :: action
+  @spec create(atom, String.t()) :: action
   def create(type, initiator) do
     create(type, 0, :os.system_time(:milli_seconds), initiator)
   end
@@ -39,27 +40,23 @@ defmodule Fjord.Cache.Action do
    - [:play, :pause, :join, :leave]
 
   """
-  @spec create(atom, number, number, String.t) :: action
+  @spec create(atom, number, number, String.t()) :: action
   def create(type, video_time, world_time, initiator) do
-    %Action{type: type,
-      video_time: video_time,
-      world_time: world_time,
-      initiator: initiator}
+    %Action{type: type, video_time: video_time, world_time: world_time, initiator: initiator}
   end
-
 
   @doc """
   Validation functions
     Test if the type is valid
   """
-  @spec decode_type(String.t) :: {atom, atom | String.t}
+  @spec decode_type(String.t()) :: {atom, atom | String.t()}
   def decode_type(type) do
     downcase_type = String.downcase(type)
+
     if Enum.member?(@valid_types, downcase_type) do
       {:ok, String.to_atom(downcase_type)}
     else
       {:error, "Invalid action type -- #{type}"}
     end
   end
-
 end
