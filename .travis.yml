@@ -17,8 +17,8 @@ matrix:
         - mix local.hex --force
         - mix deps.get
         - cd ../client/chrome-extension
-        - nvm install 8.9.4
-        - npm i -g npm@5.6.0
+        - nvm install 10.14.1
+        - npm i -g npm@6.9.2
         - npm install
       script:
         - npm run test
