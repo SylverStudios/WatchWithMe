@@ -2,15 +2,15 @@ matrix:
   include:
     - name: "Elixir Server"
       language: elixir
-      elixir: '1.4'
-      otp_release: '20.0'
+      elixir: '1.9'
+      otp_release: '22.0'
       before_install:
         - cd fjord
 
     - name: "JS Client & Integration"
       language: elixir
-      elixir: '1.4'
-      otp_release: '20.0'
+      elixir: '1.9'
+      otp_release: '22.0'
       install:
         - cd fjord
         - mix local.rebar --force

@@ -14,3 +14,17 @@ The new server implementation is written in Elixir! Conceptually, it's not terri
 ### Chrome Extension
 
 I am in the process of moving the UI into the elixir/assets directory. I'm trying to setup something similar to the Java implementation where you can do some basic testing with the server and without having to redeploy the chrome extension every time you want to test the UI.
+
+
+### Upgrade
+
+```bash
+# Elixir v1.9, Erlang and OTP 22 (20-22 will work), Phoenix 1.4
+brew upgrade elixir
+
+cd fjord
+mix deps.get
+mix compile
+mix test
+
+```
