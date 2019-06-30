@@ -51,15 +51,15 @@ class Video {
     const listener = this.listeners.pause;
 
     this.video.removeEventListener('pause', listener);
-    this.video.pause();
+
     if (time) {
       this.video.currentTime = time;
     }
-    const ignoreNext = () => {
-      this.video.addEventListener('pause', listener, false);
-    };
 
-    this.video.addEventListener('pause', ignoreNext, { capture: false, once: true });
+    new Promise((resolve, reject) => { this.video.pause(); resolve(); })
+      .then(() => {
+        this.video.addEventListener('pause', listener, { capture: false });
+      });
   }
 
   getState() {
