@@ -84,6 +84,7 @@ class PageWatcher {
               return;
             case 'PAUSE':
               this.video.pause(videoTime);
+              return;
           }
       }
     });
