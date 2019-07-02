@@ -15,11 +15,11 @@ defmodule FjordWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(%{"username" => username}, socket) do
+  def connect(%{"username" => username}, socket, _conn_info) do
     {:ok, assign(socket, :username, username)}
   end
 
-  def connect(_params, socket) do
+  def connect(params, socket, _conn_info) do
     {:ok, assign(socket, :username, "anonymous")}
   end
 
