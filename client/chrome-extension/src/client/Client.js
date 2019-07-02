@@ -10,6 +10,7 @@ class Client {
 
     this.socket = new Socket(address, {
       reconnectAfterMs: () => 500,
+      params: { username: username }
     });
   }
   connect(onSuccess, onError) {
