@@ -2,12 +2,17 @@
 
 import Client from './client/Client';
 import AppController from './background/AppController';
+import Config from './Config';
 
 /**
  * Set up parameters to AppController based on environment
  * Here environment is chrome extension and messaging needs to be plumbed a certain way
  */
-const client = new Client('ws://localhost:4000/socket', 'user'); // TODO use real values for address and username
+
+const config = new Config('dev');
+console.debug(`Background connecting to: ${config.url}`);
+
+const client = new Client(config.url, 'user'); // TODO use real values for address and username
 const sendMessage = (message) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]) {
