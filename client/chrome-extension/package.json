@@ -34,7 +34,7 @@
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^0.28.11",
     "enzyme": "^3.10.0",
-    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-adapter-react-16": "^1.15.4",
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^2.0.0",
     "html-webpack-exclude-assets-plugin": "0.0.7",
