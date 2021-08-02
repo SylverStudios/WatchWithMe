@@ -39,7 +39,7 @@
     "file-loader": "^2.0.0",
     "html-webpack-exclude-assets-plugin": "0.0.7",
     "html-webpack-plugin": "^3.2.0",
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.7.0",
     "mocha": "^5.0.4",
     "mocha-webpack": "^1.1.0",
     "node-sass": "^4.13.0",
